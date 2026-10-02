@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/recipe.dart';
 import '../../domain/entities/promo.dart';
 import '../../domain/entities/receipt.dart';
 import '../../domain/entities/store.dart';
 import '../../domain/entities/delivery_slot.dart';
-import '../../domain/entities/silpo_boost.dart';
 import 'silpo_datasource.dart';
 
 class SilpoMockDataSource implements SilpoDataSource {
@@ -824,128 +822,5 @@ class SilpoMockDataSource implements SilpoDataSource {
       return getProductDetails(productId);
     }
     return getProductDetails(clean);
-  }
-
-  @override
-  Future<int> getVlasnyiRakhunokBalance() async {
-    return 1450; // 1450 балобонусів = 14.50 грн знижки
-  }
-
-  static final List<SilpoBoostCoupon> _boostCoupons = [
-    SilpoBoostCoupon(
-      id: 'boost_coffee_x3',
-      title: 'Буст x3 на каву Feeltrd та зернову каву',
-      category: 'Кава та чай',
-      multiplier: 3.0,
-      badgeText: 'x3 БАЛОЧОК',
-      description: 'Потрійні бали «Власний Рахунок» на всю каву в зернах та гарячі напої Feeltrd.',
-      isActivated: true,
-      expiresAt: DateTime.now().add(const Duration(days: 6)),
-      icon: Icons.coffee,
-    ),
-    SilpoBoostCoupon(
-      id: 'boost_bakery_x5',
-      title: 'Буст x5 на духмяну випічку Власної пекарні',
-      category: 'Власна пекарня',
-      multiplier: 5.0,
-      badgeText: 'x5 БАЛОЧОК',
-      description: 'П’ятикратні бали на круасани, багети, хліб та авторські пироги.',
-      isActivated: false,
-      expiresAt: DateTime.now().add(const Duration(days: 5)),
-      icon: Icons.bakery_dining,
-    ),
-    SilpoBoostCoupon(
-      id: 'boost_meat_x2',
-      title: 'Буст x2 на охолоджене м’ясо «Свіжачок»',
-      category: 'М’ясо',
-      multiplier: 2.0,
-      badgeText: 'x2 БАЛОЧОК',
-      description: 'Подвійне нарахування балів при купівлі свіжої телятини, яловичини та птиці.',
-      isActivated: true,
-      expiresAt: DateTime.now().add(const Duration(days: 4)),
-      icon: Icons.kebab_dining,
-    ),
-    SilpoBoostCoupon(
-      id: 'boost_cheese_x3',
-      title: 'Буст x3 на крафтові європейські сири',
-      category: 'Сири та масло',
-      multiplier: 3.0,
-      badgeText: 'x3 БАЛОЧОК',
-      description: 'Потрійні бали на пармезан, гауду, брі та сири власної сироварні.',
-      isActivated: false,
-      expiresAt: DateTime.now().add(const Duration(days: 7)),
-      icon: Icons.lunch_dining,
-    ),
-    SilpoBoostCoupon(
-      id: 'boost_receipt_1000',
-      title: '+1000 балочок на чек від 500 грн',
-      category: 'Усі товари',
-      extraBonusPoints: 1000,
-      badgeText: '+1000 БАЛІВ',
-      description: 'Одноразовий супер-буст на 1000 балобонусів при загальній сумі чека від 500 ₴.',
-      isActivated: false,
-      expiresAt: DateTime.now().add(const Duration(days: 3)),
-      icon: Icons.stars,
-    ),
-  ];
-
-  @override
-  Future<List<SilpoBoostCoupon>> getBoostCoupons() async {
-    return List.unmodifiable(_boostCoupons);
-  }
-
-  @override
-  Future<bool> activateBoostCoupon(String couponId) async {
-    final idx = _boostCoupons.indexWhere((c) => c.id == couponId);
-    if (idx != -1) {
-      final current = _boostCoupons[idx];
-      _boostCoupons[idx] = current.copyWith(isActivated: !current.isActivated);
-      return true;
-    }
-    return false;
-  }
-
-  @override
-  Future<FiscalReceipt?> importFiscalReceiptByQr(String qrContent) async {
-    final receipt = FiscalReceipt(
-      id: 'rec_qr_${DateTime.now().millisecondsSinceEpoch}',
-      fiscalNumber: 'ФЧ-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}',
-      dateTime: DateTime.now(),
-      storeAddress: 'Київ, ТРЦ Gulliver (Вільнокаса QR)',
-      totalAmount: 248.50,
-      discountAmount: 42.00,
-      bonusPointsEarned: 48,
-      paymentMethod: 'Власний Рахунок QR',
-      items: const [
-        ReceiptItem(
-          name: 'Сметана 20% «Премія» 350г',
-          quantity: 1,
-          unit: 'шт',
-          price: 39.90,
-          total: 39.90,
-          discountAmount: 9.00,
-          category: 'Молочні продукти',
-        ),
-        ReceiptItem(
-          name: 'Шоколад чорний 70% «Премія» 100г',
-          quantity: 2,
-          unit: 'шт',
-          price: 39.90,
-          total: 79.80,
-          discountAmount: 16.20,
-          category: 'Кондитерські вироби',
-        ),
-        ReceiptItem(
-          name: 'Пампушки з часником',
-          quantity: 1,
-          unit: 'уп',
-          price: 34.00,
-          total: 34.00,
-          discountAmount: 0.0,
-          category: 'Власна пекарня',
-        ),
-      ],
-    );
-    return receipt;
   }
 }

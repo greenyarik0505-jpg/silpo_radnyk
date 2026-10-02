@@ -8,9 +8,6 @@ class PromoViewModel extends ChangeNotifier {
   List<PromoItem> _allPromos = [];
   String? _selectedCategory;
   bool _isLoading = false;
-  bool _isSpinning = false;
-  String? _wheelPrize;
-  bool _hasSpunWheel = false;
 
   PromoViewModel({SilpoRepository? repository})
       : _repository = repository ?? SilpoRepository() {
@@ -32,9 +29,6 @@ class PromoViewModel extends ChangeNotifier {
 
   String? get selectedCategory => _selectedCategory;
   bool get isLoading => _isLoading;
-  bool get isSpinning => _isSpinning;
-  String? get wheelPrize => _wheelPrize;
-  bool get hasSpunWheel => _hasSpunWheel;
 
   List<String> get categories {
     final set = {'Всі', ..._allPromos.map((p) => p.category)};
@@ -54,26 +48,6 @@ class PromoViewModel extends ChangeNotifier {
 
   void selectCategory(String? category) {
     _selectedCategory = category;
-    notifyListeners();
-  }
-
-  Future<void> spinWheel() async {
-    if (_isSpinning || _hasSpunWheel) return;
-    _isSpinning = true;
-    notifyListeners();
-
-    await Future.delayed(const Duration(milliseconds: 1500));
-
-    final prizes = [
-      'Знижка 25% на свіжу випічку',
-      'х5 балів «Власний Рахунок» на сири',
-      'Безкоштовна експрес-доставка',
-      'Кава Feeltrd за 1 грн',
-      'Знижка 15% на крафтовий шоколад',
-    ];
-    _wheelPrize = prizes[DateTime.now().microsecond % prizes.length];
-    _isSpinning = false;
-    _hasSpunWheel = true;
     notifyListeners();
   }
 }

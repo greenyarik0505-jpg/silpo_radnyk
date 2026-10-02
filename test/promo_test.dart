@@ -3,7 +3,7 @@ import 'package:sulipo_pomoshuk/presentation/viewmodels/promo_viewmodel.dart';
 import 'package:sulipo_pomoshuk/data/repositories/silpo_repository.dart';
 
 void main() {
-  group('Promos & Wheel of Fortune Tests', () {
+  group('Promos & Catalog Tests', () {
     late PromoViewModel promoViewModel;
 
     setUp(() {
@@ -27,19 +27,6 @@ void main() {
 
       promoViewModel.selectCategory('Всі');
       expect(promoViewModel.promos.length, greaterThan(1));
-    });
-
-    test('Spinning Wheel of Fortune yields prize', () async {
-      expect(promoViewModel.hasSpunWheel, isFalse);
-      expect(promoViewModel.wheelPrize, isNull);
-
-      final spinFuture = promoViewModel.spinWheel();
-      expect(promoViewModel.isSpinning, isTrue);
-
-      await spinFuture;
-      expect(promoViewModel.isSpinning, isFalse);
-      expect(promoViewModel.hasSpunWheel, isTrue);
-      expect(promoViewModel.wheelPrize, isNotNull);
     });
   });
 }

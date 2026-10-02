@@ -6,11 +6,13 @@ import 'silpo_badge.dart';
 class PromoCard extends StatelessWidget {
   final PromoItem promo;
   final VoidCallback? onTap;
+  final VoidCallback? onAddToCart;
 
   const PromoCard({
     super.key,
     required this.promo,
     this.onTap,
+    this.onAddToCart,
   });
 
   @override
@@ -45,12 +47,6 @@ class PromoCard extends StatelessWidget {
                     text: '-${promo.discountPercent}%',
                     type: SilpoBadgeType.discount,
                   ),
-                  if (promo.bonusMultiplier != null)
-                    SilpoBadge(
-                      text: 'х${promo.bonusMultiplier} балів',
-                      type: SilpoBadgeType.bonus,
-                      icon: Icons.stars,
-                    ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
@@ -87,10 +83,10 @@ class PromoCard extends StatelessWidget {
                   height: 1.3,
                 ),
               ),
-              if (promo.promoPrice != null && promo.originalPrice != null) ...[
-                const SizedBox(height: 12),
-                Row(
-                  children: [
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  if (promo.originalPrice != null)
                     Text(
                       '${promo.originalPrice!.toStringAsFixed(2)} ₴',
                       style: TextStyle(
@@ -99,7 +95,8 @@ class PromoCard extends StatelessWidget {
                         color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                  if (promo.originalPrice != null) const SizedBox(width: 8),
+                  if (promo.promoPrice != null)
                     Text(
                       '${promo.promoPrice!.toStringAsFixed(2)} ₴',
                       style: const TextStyle(
@@ -108,18 +105,31 @@ class PromoCard extends StatelessWidget {
                         color: AppColors.discountRed,
                       ),
                     ),
-                    const Spacer(),
-                    Text(
-                      'Економія ${(promo.originalPrice! - promo.promoPrice!).toStringAsFixed(2)} ₴',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.successGreen,
+                  const Spacer(),
+                  if (onAddToCart != null)
+                    FilledButton.tonalIcon(
+                      onPressed: onAddToCart,
+                      icon: const Icon(Icons.add_shopping_cart, size: 16),
+                      label: const Text('У список'),
+                      style: FilledButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        backgroundColor: AppColors.silpoOrange.withValues(alpha: 0.15),
+                        foregroundColor: AppColors.silpoOrange,
                       ),
                     ),
-                  ],
-                ),
-              ],
+                ],
+              ),
+              const SizedBox(height: 6),
+              const Row(
+                children: [
+                  Icon(Icons.info_outline, size: 13, color: Colors.grey),
+                  SizedBox(width: 4),
+                  Text(
+                    'Натисніть для перегляду складу та посилання на silpo.ua',
+                    style: TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

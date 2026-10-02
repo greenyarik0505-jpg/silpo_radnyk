@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
-import '../../domain/entities/delivery_slot.dart';
 import '../viewmodels/cart_viewmodel.dart';
 import '../widgets/cart_item_tile.dart';
 import 'vilnokasa_screen.dart';
@@ -54,14 +53,6 @@ class CartScreen extends StatelessWidget {
               ? _buildEmptyState(context, isDark)
               : Column(
                   children: [
-                    // Free delivery threshold progress bar
-                    _buildFreeDeliveryProgressBar(context, isDark),
-
-                    // Delivery slot selector pill list
-                    _buildDeliverySlotsSelector(context, isDark),
-
-                    const Divider(height: 1),
-
                     // Items list
                     Expanded(
                       child: ListView.builder(
@@ -79,7 +70,7 @@ class CartScreen extends StatelessWidget {
                       ),
                     ),
 
-                    // Checkout Bottom Summary Panel
+                    // Bottom Summary Panel
                     _buildSummaryPanel(context, isDark),
                   ],
                 ),
@@ -88,200 +79,87 @@ class CartScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFreeDeliveryProgressBar(BuildContext context, bool isDark) {
-    const double freeDeliveryThreshold = 399.0;
-    final current = cartViewModel.totalPrice;
-    final remaining = freeDeliveryThreshold - current;
-    final progress = (current / freeDeliveryThreshold).clamp(0.0, 1.0);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: isDark ? AppColors.darkSurface : const Color(0xFFFFF9F5),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    remaining <= 0 ? Icons.check_circle : Icons.local_shipping_outlined,
-                    size: 16,
-                    color: remaining <= 0 ? AppColors.successGreen : AppColors.silpoOrange,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    remaining <= 0
-                        ? '🎉 Безкоштовна доставка активована!'
-                        : 'До безкоштовної доставки: ${remaining.toStringAsFixed(2)} ₴',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: remaining <= 0 ? AppColors.successGreen : AppColors.silpoOrange,
-                    ),
-                  ),
-                ],
-              ),
-              Text(
-                'від 399 ₴',
-                style: TextStyle(fontSize: 11, color: isDark ? Colors.white54 : Colors.grey),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.grey.withValues(alpha: 0.2),
-              color: remaining <= 0 ? AppColors.successGreen : AppColors.silpoOrange,
-              minHeight: 6,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeliverySlotsSelector(BuildContext context, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      color: isDark ? AppColors.darkSurface : Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Row(
-              children: [
-                Icon(Icons.delivery_dining, size: 18, color: AppColors.silpoOrange),
-                SizedBox(width: 6),
-                Text(
-                  AppStrings.deliverySlotsTitle,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 6),
-          SizedBox(
-            height: 40,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: cartViewModel.availableSlots.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final slot = cartViewModel.availableSlots[index];
-                final isSelected = cartViewModel.selectedSlot?.id == slot.id;
-                return ChoiceChip(
-                  label: Text('${_slotTitle(slot)} (${slot.timeRange})'),
-                  selected: isSelected,
-                  selectedColor: AppColors.silpoOrange,
-                  labelStyle: TextStyle(
-                    fontSize: 12,
-                    color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  ),
-                  onSelected: (selected) {
-                    if (selected) cartViewModel.selectDeliverySlot(slot);
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _slotTitle(DeliverySlot slot) {
-    return switch (slot.type) {
-      DeliveryType.express => '⚡ Експрес',
-      DeliveryType.scheduled => '🕒 Планова',
-      DeliveryType.selfPickup => '🏪 Самовивіз',
-    };
-  }
-
   Widget _buildSummaryPanel(BuildContext context, bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 10,
             offset: const Offset(0, -3),
+            blurRadius: 10,
           ),
         ],
       ),
       child: SafeArea(
+        top: false,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (cartViewModel.totalSavings > 0)
               Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.only(bottom: 6),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      AppStrings.discountSavings,
-                      style: TextStyle(color: AppColors.discountRed, fontWeight: FontWeight.bold),
+                      'Економія за акціями:',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.discountRed,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       '-${cartViewModel.totalSavings.toStringAsFixed(2)} ₴',
-                      style: const TextStyle(color: AppColors.discountRed, fontWeight: FontWeight.bold, fontSize: 15),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.discountRed,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
               ),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  AppStrings.loyaltyPointsEarned,
-                  style: TextStyle(color: AppColors.vlasnyiRakhunok, fontWeight: FontWeight.w600, fontSize: 13),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      AppStrings.totalSum,
+                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                    ),
+                    Text(
+                      '${cartViewModel.totalPrice.toStringAsFixed(2)} ₴',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.silpoOrange,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  '+${cartViewModel.totalBonusPoints} балів',
-                  style: const TextStyle(color: AppColors.vlasnyiRakhunok, fontWeight: FontWeight.bold, fontSize: 13),
+                FilledButton.icon(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Список покупок готовий!'),
+                        backgroundColor: AppColors.silpoOrange,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.check_circle_outline),
+                  label: const Text('Готово до покупок'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.silpoOrange,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
                 ),
               ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  AppStrings.totalSum,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '${cartViewModel.finalTotal.toStringAsFixed(2)} ₴',
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.silpoOrange),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: AppColors.silpoOrange,
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: () {
-                  _showOrderSuccessDialog(context);
-                },
-                child: const Text(
-                  AppStrings.checkoutButton,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
             ),
           ],
         ),
@@ -296,33 +174,33 @@ class CartScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.silpoOrange.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.shopping_cart_outlined, size: 64, color: AppColors.silpoOrange),
+            Icon(
+              Icons.shopping_bag_outlined,
+              size: 80,
+              color: isDark ? Colors.white24 : Colors.grey[300],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             const Text(
-              AppStrings.cartEmpty,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              'Список покупок порожній',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              AppStrings.cartEmptyPrompt,
+              'Запитайте в AI-Шефа ідею для страви або виберіть товари у розділі Акцій',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14,
                 color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
               ),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              icon: const Icon(Icons.auto_awesome),
-              label: const Text('Спитати поради в AI Шефа'),
               onPressed: onNavigateToAi,
+              icon: const Icon(Icons.auto_awesome),
+              label: const Text('Скласти меню з AI-Шефом'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.silpoOrange,
+                foregroundColor: Colors.white,
+              ),
             ),
           ],
         ),
@@ -335,48 +213,19 @@ class CartScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Очистити кошик?'),
-        content: const Text('Всі додані товари та налаштування регулярної доставки буде видалено.'),
+        content: const Text('Всі товари будуть видалені зі списку покупок.'),
         actions: [
           TextButton(
-            child: const Text('Скасувати'),
             onPressed: () => Navigator.pop(ctx),
+            child: const Text('Скасувати'),
           ),
-          TextButton(
-            child: const Text('Очистити', style: TextStyle(color: Colors.red)),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
             onPressed: () {
               cartViewModel.clearCart();
               Navigator.pop(ctx);
             },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showOrderSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.check_circle, color: AppColors.successGreen, size: 54),
-        title: const Text('Замовлення прийнято!'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Сума: ${cartViewModel.finalTotal.toStringAsFixed(2)} ₴'),
-            Text('Слот доставки: ${cartViewModel.selectedSlot?.timeRange ?? "Експрес"}'),
-            Text('Нараховано: +${cartViewModel.totalBonusPoints} балів «Власний Рахунок»'),
-            const SizedBox(height: 12),
-            const Text('Сільпо AI Assistant передав замовлення на збірку у найближчий супермаркет.'),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            child: const Text('Чудово'),
-            onPressed: () {
-              cartViewModel.clearCart();
-              Navigator.pop(ctx);
-            },
+            child: const Text('Очистити'),
           ),
         ],
       ),

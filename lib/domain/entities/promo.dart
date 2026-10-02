@@ -1,3 +1,5 @@
+import 'product.dart';
+
 enum PromoType {
   cinotyzhik,
   wheelOfFortune,
@@ -18,8 +20,9 @@ class PromoItem {
   final DateTime validUntil;
   final String category;
   final String? imageUrl;
-  final int? bonusMultiplier; // e.g. x3 for fresh bakery
+  final int? bonusMultiplier;
   final String? barcode;
+  final Product? product;
 
   const PromoItem({
     required this.id,
@@ -34,7 +37,23 @@ class PromoItem {
     this.imageUrl,
     this.bonusMultiplier,
     this.barcode,
+    this.product,
   });
+
+  Product get effectiveProduct =>
+      product ??
+      Product(
+        id: id,
+        title: title,
+        category: category,
+        regularPrice: originalPrice ?? (promoPrice != null ? promoPrice! * 1.25 : 100.0),
+        promoPrice: promoPrice,
+        isCinotyzhik: type == PromoType.cinotyzhik,
+        bonusPoints: (bonusMultiplier ?? 1) * 10,
+        imageUrl: imageUrl,
+        silpoUrl: 'https://shop.silpo.ua/product/$id',
+        composition: 'Склад: натуральні інгредієнти вищого ґатунку.',
+      );
 
   int get daysRemaining {
     final diff = validUntil.difference(DateTime.now()).inDays;

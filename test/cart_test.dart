@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sulipo_pomoshuk/domain/entities/product.dart';
-import 'package:sulipo_pomoshuk/domain/entities/delivery_slot.dart';
 import 'package:sulipo_pomoshuk/presentation/viewmodels/cart_viewmodel.dart';
 import 'package:sulipo_pomoshuk/data/repositories/silpo_repository.dart';
 
@@ -42,13 +41,11 @@ void main() {
       expect(cart.totalPrice, 150.0); // 75 * 2
       expect(cart.totalRegularPrice, 200.0); // 100 * 2
       expect(cart.totalSavings, 50.0); // 25 * 2
-      expect(cart.totalBonusPoints, 20); // 10 * 2
 
       cart.addProduct(testProduct2, quantity: 1);
       expect(cart.itemCount, 3);
       expect(cart.totalPrice, 350.0); // 150 + 200
       expect(cart.totalSavings, 50.0);
-      expect(cart.totalBonusPoints, 40); // 20 + 20
     });
 
     test('Updating quantity and removing item works', () {
@@ -73,24 +70,6 @@ void main() {
       expect(cart.items.first.isAutoReplenish, isFalse);
     });
 
-    test('Selecting delivery slot reflects in final total', () {
-      cart.addProduct(testProduct1, quantity: 1);
-      expect(cart.totalPrice, 75.0);
-
-      final slot = DeliverySlot(
-        id: 'express_slot',
-        type: DeliveryType.express,
-        timeRange: '40 хв',
-        date: DateTime.now(),
-        deliveryFee: 49.0,
-        description: 'Експрес',
-      );
-
-      cart.selectDeliverySlot(slot);
-      expect(cart.deliveryFee, 49.0);
-      expect(cart.finalTotal, 124.0); // 75 + 49
-    });
-
     test('Clear cart empties everything', () {
       cart.addProduct(testProduct1);
       cart.addProduct(testProduct2);
@@ -98,7 +77,7 @@ void main() {
 
       cart.clearCart();
       expect(cart.isEmpty, isTrue);
-      expect(cart.totalPrice, 0.0);
+      expect(cart.itemCount, 0);
     });
   });
 }

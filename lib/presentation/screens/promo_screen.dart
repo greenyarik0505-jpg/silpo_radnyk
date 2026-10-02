@@ -4,6 +4,7 @@ import '../../core/constants/app_strings.dart';
 import '../viewmodels/promo_viewmodel.dart';
 import '../viewmodels/cart_viewmodel.dart';
 import '../widgets/promo_card.dart';
+import '../widgets/product_details_sheet.dart';
 
 class PromoScreen extends StatelessWidget {
   final PromoViewModel promoViewModel;
@@ -39,10 +40,7 @@ class PromoScreen extends StatelessWidget {
             color: AppColors.silpoOrange,
             child: ListView(
               children: [
-                // Top Wheel of Fortune Interactive Banner
-                _buildWheelOfFortuneCard(context, isDark),
-
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
 
                 // Category filter chips
                 SizedBox(
@@ -96,7 +94,7 @@ class PromoScreen extends StatelessWidget {
                           Icon(Icons.bolt, size: 14, color: AppColors.silpoOrange),
                           SizedBox(width: 4),
                           Text(
-                            'Ціни оновлено сьогодні',
+                            'Цінотижики тижня',
                             style: TextStyle(fontSize: 12, color: AppColors.silpoOrange, fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -105,151 +103,76 @@ class PromoScreen extends StatelessWidget {
                   ),
                 ),
 
-                // List of Promos
+                // Promos List
                 if (promoViewModel.isLoading)
                   const Padding(
                     padding: EdgeInsets.all(40),
-                    child: Center(child: CircularProgressIndicator(color: AppColors.silpoOrange)),
+                    child: Center(
+                      child: CircularProgressIndicator(color: AppColors.silpoOrange),
+                    ),
+                  )
+                else if (promoViewModel.promos.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.sentiment_dissatisfied,
+                            size: 48,
+                            color: isDark ? Colors.white38 : Colors.grey,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'У цій категорії зараз немає акційних товарів',
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   )
                 else
-                  ...promoViewModel.promos.map((promo) {
-                    return PromoCard(
-                      promo: promo,
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Обрано: ${promo.title}'),
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                    );
-                  }),
-
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                    itemCount: promoViewModel.promos.length,
+                    itemBuilder: (context, index) {
+                      final promo = promoViewModel.promos[index];
+                      final product = promo.effectiveProduct;
+                      return PromoCard(
+                        promo: promo,
+                        onTap: () {
+                          ProductDetailsSheet.show(context, product, cartViewModel);
+                        },
+                        onAddToCart: () {
+                          cartViewModel.addProduct(product);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('«${product.title}» додано до списку покупок!'),
+                              backgroundColor: AppColors.silpoOrange,
+                              duration: const Duration(seconds: 2),
+                              action: SnackBarAction(
+                                label: 'Скасувати',
+                                textColor: Colors.white,
+                                onPressed: () {
+                                  cartViewModel.removeItem(product.id);
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 const SizedBox(height: 24),
               ],
             ),
           ),
         );
       },
-    );
-  }
-
-  Widget _buildWheelOfFortuneCard(BuildContext context, bool isDark) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF6C5CE7), Color(0xFF8B5CF6)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6C5CE7).withValues(alpha: 0.35),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.casino, color: Colors.white, size: 24),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppStrings.wheelOfFortune,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Крутіть щодня та вигравайте бонуси й персональні знижки!',
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          if (promoViewModel.hasSpunWheel) ...[
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.emoji_events, color: AppColors.silpoYellow, size: 28),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Ваш щоденний виграш:',
-                          style: TextStyle(color: Colors.white70, fontSize: 11),
-                        ),
-                        Text(
-                          promoViewModel.wheelPrize ?? 'Приз активовано',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ] else ...[
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.silpoYellow,
-                  foregroundColor: Colors.black87,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-                icon: promoViewModel.isSpinning
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black87),
-                      )
-                    : const Icon(Icons.rotate_right),
-                label: Text(
-                  promoViewModel.isSpinning ? 'Колесо обертається...' : 'Крутити Колесо Фортуни',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                onPressed: promoViewModel.isSpinning ? null : promoViewModel.spinWheel,
-              ),
-            ),
-          ],
-        ],
-      ),
     );
   }
 }

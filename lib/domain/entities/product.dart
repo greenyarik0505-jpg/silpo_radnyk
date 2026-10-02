@@ -1,3 +1,36 @@
+/// Domain entity representing an ingredient item that is used to make a dish/product.
+class ProductIngredientItem {
+  final String name;
+  final String? brand;
+  final String amount;
+  final double estimatedPrice;
+  final String silpoUrl;
+
+  const ProductIngredientItem({
+    required this.name,
+    this.brand,
+    required this.amount,
+    required this.estimatedPrice,
+    required this.silpoUrl,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'brand': brand,
+    'amount': amount,
+    'estimatedPrice': estimatedPrice,
+    'silpoUrl': silpoUrl,
+  };
+
+  factory ProductIngredientItem.fromJson(Map<String, dynamic> json) => ProductIngredientItem(
+    name: json['name'] as String,
+    brand: json['brand'] as String?,
+    amount: json['amount'] as String? ?? '1 шт',
+    estimatedPrice: (json['estimatedPrice'] as num?)?.toDouble() ?? 0.0,
+    silpoUrl: json['silpoUrl'] as String? ?? 'https://shop.silpo.ua',
+  );
+}
+
 /// Domain entity representing a product in Silpo catalog.
 class Product {
   final String id;
@@ -13,6 +46,9 @@ class Product {
   final double? rating;
   final int? bonusPoints;
   final double weightGrams;
+  final String? composition; // Склад продукту з етикетки
+  final String? silpoUrl; // Пряме посилання на silpo.ua
+  final List<ProductIngredientItem> recipeIngredients; // Якщо страва — список продуктів, з яких її готувати
 
   const Product({
     required this.id,
@@ -28,6 +64,9 @@ class Product {
     this.rating,
     this.bonusPoints,
     this.weightGrams = 1000,
+    this.composition,
+    this.silpoUrl,
+    this.recipeIngredients = const [],
   });
 
   bool get hasDiscount => promoPrice != null && promoPrice! < regularPrice;
@@ -55,6 +94,9 @@ class Product {
     'rating': rating,
     'bonusPoints': bonusPoints,
     'weightGrams': weightGrams,
+    'composition': composition,
+    'silpoUrl': silpoUrl,
+    'recipeIngredients': recipeIngredients.map((r) => r.toJson()).toList(),
   };
 
   factory Product.fromJson(Map<String, dynamic> json) => Product(
@@ -71,5 +113,11 @@ class Product {
     rating: (json['rating'] as num?)?.toDouble(),
     bonusPoints: json['bonusPoints'] as int?,
     weightGrams: (json['weightGrams'] as num?)?.toDouble() ?? 1000,
+    composition: json['composition'] as String?,
+    silpoUrl: json['silpoUrl'] as String?,
+    recipeIngredients: (json['recipeIngredients'] as List<dynamic>?)
+            ?.map((e) => ProductIngredientItem.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        const [],
   );
 }

@@ -11,6 +11,10 @@ class StoreViewModel extends ChangeNotifier {
   String? _selectedCity;
   bool _isLoading = false;
 
+  bool _onlyWithGenerator = false;
+  bool _onlyWithBakery = false;
+  bool _onlyWithFeeltrd = false;
+
   StoreViewModel({SilpoRepository? repository})
       : _repository = repository ?? SilpoRepository() {
     loadStores();
@@ -23,7 +27,11 @@ class StoreViewModel extends ChangeNotifier {
           s.address.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           (s.conceptTheme != null && s.conceptTheme!.toLowerCase().contains(_searchQuery.toLowerCase()));
       final matchesCity = _selectedCity == null || _selectedCity == 'Всі міста' || s.city == _selectedCity;
-      return matchesQuery && matchesCity;
+      final matchesGenerator = !_onlyWithGenerator || s.hasGenerator;
+      final matchesBakery = !_onlyWithBakery || s.amenities.any((a) => a.toLowerCase().contains('пекарня'));
+      final matchesFeeltrd = !_onlyWithFeeltrd || s.amenities.any((a) => a.toLowerCase().contains('feeltrd'));
+
+      return matchesQuery && matchesCity && matchesGenerator && matchesBakery && matchesFeeltrd;
     }).toList();
   }
 
@@ -31,7 +39,11 @@ class StoreViewModel extends ChangeNotifier {
   String? get selectedCity => _selectedCity;
   bool get isLoading => _isLoading;
 
-  List<String> get cities => ['Всі міста', 'Київ', 'Львів', 'Одеса', 'Дніпро'];
+  bool get onlyWithGenerator => _onlyWithGenerator;
+  bool get onlyWithBakery => _onlyWithBakery;
+  bool get onlyWithFeeltrd => _onlyWithFeeltrd;
+
+  List<String> get cities => ['Всі міста', 'Київ', 'Львів', 'Одеса', 'Дніпро', 'Харків'];
 
   Future<void> loadStores() async {
     _isLoading = true;
@@ -54,6 +66,21 @@ class StoreViewModel extends ChangeNotifier {
 
   void filterCity(String? city) {
     _selectedCity = city;
+    notifyListeners();
+  }
+
+  void toggleGeneratorFilter() {
+    _onlyWithGenerator = !_onlyWithGenerator;
+    notifyListeners();
+  }
+
+  void toggleBakeryFilter() {
+    _onlyWithBakery = !_onlyWithBakery;
+    notifyListeners();
+  }
+
+  void toggleFeeltrdFilter() {
+    _onlyWithFeeltrd = !_onlyWithFeeltrd;
     notifyListeners();
   }
 
