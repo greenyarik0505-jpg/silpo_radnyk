@@ -1,5 +1,5 @@
 name: sulipo_pomoshuk
-description: "Сільпо Помічник (Silpo AI Assistant) — розумний мобільний асистент для покупок, автоматичного перенесення рецептів у кошик, моніторингу «Цінотижиків» та прямої інтеграції з Silpo MCP."
+description: "СільпоРадник (Silpo AI Assistant) — розумний мобільний асистент для покупок, автоматичного перенесення рецептів у кошик, моніторингу «Цінотижиків» та прямої інтеграції з Google Gemini 3.1 Flash Lite."
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -23,3 +23,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/

@@ -1,7 +1,7 @@
 /// Localized strings and brand naming for Silpo Assistant.
 class AppStrings {
-  static const String appName = 'Сільпо Помічник';
-  static const String appSubtitle = 'Розумний AI-асистент для смачних та вигідних покупок';
+  static const String appName = 'СільпоРадник';
+  static const String appSubtitle = 'Розумний AI-помічник для смачних та вигідних покупок у «Сільпо»';
 
   // Navigation
   static const String tabAiChat = 'AI Шеф';
