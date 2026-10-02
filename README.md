@@ -76,7 +76,7 @@
 
 ### 1. Клонування репозиторію
 ```bash
-git clone https://github.com/your-username/sulipo_pomoshuk.git
+git clone https://github.com/greenyarik0505-jpg/sulipo_pomoshuk.git
 cd sulipo_pomoshuk
 ```
 
