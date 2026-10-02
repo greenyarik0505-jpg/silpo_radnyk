@@ -16,4 +16,6 @@ abstract class SilpoDataSource {
   Future<List<SilpoStore>> getStores({String? city});
   Future<List<FiscalReceipt>> getFiscalReceipts();
   Future<List<DeliverySlot>> getDeliverySlots({String? filialId});
+  void setActiveBranch(String branchId);
+  String? get activeBranchId;
 }

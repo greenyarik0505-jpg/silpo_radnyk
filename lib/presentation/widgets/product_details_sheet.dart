@@ -4,6 +4,7 @@ import '../../domain/entities/product.dart';
 import '../../core/constants/app_colors.dart';
 import '../viewmodels/cart_viewmodel.dart';
 import 'silpo_badge.dart';
+import 'silpo_network_image.dart';
 
 class ProductDetailsSheet extends StatelessWidget {
   final Product product;
@@ -90,6 +91,32 @@ class ProductDetailsSheet extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
+            ),
+            const SizedBox(height: 8),
+
+            // Hero Product Image
+            Center(
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                height: 180,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkBackground : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark ? Colors.white12 : Colors.grey[200]!,
+                  ),
+                ),
+                child: Center(
+                  child: SilpoNetworkImage(
+                    imageUrl: product.imageUrl,
+                    height: 160,
+                    width: 260,
+                    fit: BoxFit.contain,
+                    fallbackIcon: Icons.shopping_basket_outlined,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 10),
 

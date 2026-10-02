@@ -3,17 +3,22 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../viewmodels/promo_viewmodel.dart';
 import '../viewmodels/cart_viewmodel.dart';
+import '../viewmodels/store_viewmodel.dart';
 import '../widgets/promo_card.dart';
 import '../widgets/product_details_sheet.dart';
 
 class PromoScreen extends StatelessWidget {
   final PromoViewModel promoViewModel;
   final CartViewModel cartViewModel;
+  final StoreViewModel? storeViewModel;
+  final VoidCallback? onSelectStore;
 
   const PromoScreen({
     super.key,
     required this.promoViewModel,
     required this.cartViewModel,
+    this.storeViewModel,
+    this.onSelectStore,
   });
 
   @override
@@ -38,84 +43,127 @@ class PromoScreen extends StatelessWidget {
           body: RefreshIndicator(
             onRefresh: promoViewModel.loadPromos,
             color: AppColors.silpoOrange,
-            child: ListView(
-              children: [
-                const SizedBox(height: 8),
-
-                // Category filter chips
-                SizedBox(
-                  height: 44,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: promoViewModel.categories.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemBuilder: (context, index) {
-                      final cat = promoViewModel.categories[index];
-                      final isSelected = promoViewModel.selectedCategory == cat ||
-                          (promoViewModel.selectedCategory == null && cat == 'Всі');
-                      return ChoiceChip(
-                        label: Text(cat),
-                        selected: isSelected,
-                        selectedColor: AppColors.silpoOrange,
-                        labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          fontSize: 13,
-                        ),
-                        onSelected: (selected) {
-                          if (selected) {
-                            promoViewModel.selectCategory(cat);
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Header for Promos
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Знайдено: ${promoViewModel.promos.length} пропозицій',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      const SizedBox(height: 6),
+
+                      // Active store banner
+                      if (storeViewModel != null && storeViewModel!.selectedStore != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: onSelectStore,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: isDark ? AppColors.darkSurface : const Color(0xFFFFF9F5),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.silpoOrange.withValues(alpha: 0.3)),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.location_on, size: 16, color: AppColors.silpoOrange),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Акції супермаркету: ${storeViewModel!.selectedStore!.name}',
+                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Змінити',
+                                    style: TextStyle(fontSize: 11, color: AppColors.silpoOrange, fontWeight: FontWeight.bold),
+                                  ),
+                                  const Icon(Icons.keyboard_arrow_right, size: 16, color: AppColors.silpoOrange),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                      const SizedBox(height: 6),
+
+                      // Category filter chips
+                      SizedBox(
+                        height: 42,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: promoViewModel.categories.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 8),
+                          itemBuilder: (context, index) {
+                            final cat = promoViewModel.categories[index];
+                            final isSelected = promoViewModel.selectedCategory == cat ||
+                                (promoViewModel.selectedCategory == null && cat == 'Всі');
+                            return ChoiceChip(
+                              label: Text(cat),
+                              selected: isSelected,
+                              selectedColor: AppColors.silpoOrange,
+                              labelStyle: TextStyle(
+                                color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                fontSize: 13,
+                              ),
+                              onSelected: (selected) {
+                                if (selected) {
+                                  promoViewModel.selectCategory(cat);
+                                }
+                              },
+                            );
+                          },
                         ),
                       ),
-                      const Row(
-                        children: [
-                          Icon(Icons.bolt, size: 14, color: AppColors.silpoOrange),
-                          SizedBox(width: 4),
-                          Text(
-                            'Цінотижики тижня',
-                            style: TextStyle(fontSize: 12, color: AppColors.silpoOrange, fontWeight: FontWeight.bold),
-                          ),
-                        ],
+
+                      const SizedBox(height: 10),
+
+                      // Header for Promos
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Знайдено: ${promoViewModel.promos.length} пропозицій',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              ),
+                            ),
+                            const Row(
+                              children: [
+                                Icon(Icons.bolt, size: 14, color: AppColors.silpoOrange),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Цінотижики Сільпо',
+                                  style: TextStyle(fontSize: 12, color: AppColors.silpoOrange, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
 
-                // Promos List
                 if (promoViewModel.isLoading)
-                  const Padding(
-                    padding: EdgeInsets.all(40),
+                  const SliverFillRemaining(
                     child: Center(
                       child: CircularProgressIndicator(color: AppColors.silpoOrange),
                     ),
                   )
                 else if (promoViewModel.promos.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(40),
+                  SliverFillRemaining(
                     child: Center(
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.sentiment_dissatisfied,
@@ -134,40 +182,41 @@ class PromoScreen extends StatelessWidget {
                     ),
                   )
                 else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-                    itemCount: promoViewModel.promos.length,
-                    itemBuilder: (context, index) {
-                      final promo = promoViewModel.promos[index];
-                      final product = promo.effectiveProduct;
-                      return PromoCard(
-                        promo: promo,
-                        onTap: () {
-                          ProductDetailsSheet.show(context, product, cartViewModel);
-                        },
-                        onAddToCart: () {
-                          cartViewModel.addProduct(product);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('«${product.title}» додано до списку покупок!'),
-                              backgroundColor: AppColors.silpoOrange,
-                              duration: const Duration(seconds: 2),
-                              action: SnackBarAction(
-                                label: 'Скасувати',
-                                textColor: Colors.white,
-                                onPressed: () {
-                                  cartViewModel.removeItem(product.id);
-                                },
-                              ),
-                            ),
+                  SliverPadding(
+                    padding: const EdgeInsets.only(top: 6, bottom: 24),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final promo = promoViewModel.promos[index];
+                          final product = promo.effectiveProduct;
+                          return PromoCard(
+                            promo: promo,
+                            onTap: () {
+                              ProductDetailsSheet.show(context, product, cartViewModel);
+                            },
+                            onAddToCart: () {
+                              cartViewModel.addProduct(product);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('«${product.title}» додано до списку покупок!'),
+                                  backgroundColor: AppColors.silpoOrange,
+                                  duration: const Duration(seconds: 2),
+                                  action: SnackBarAction(
+                                    label: 'Скасувати',
+                                    textColor: Colors.white,
+                                    onPressed: () {
+                                      cartViewModel.removeItem(product.id);
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         },
-                      );
-                    },
+                        childCount: promoViewModel.promos.length,
+                      ),
+                    ),
                   ),
-                const SizedBox(height: 24),
               ],
             ),
           ),

@@ -7,6 +7,16 @@ import '../../domain/entities/delivery_slot.dart';
 import 'silpo_datasource.dart';
 
 class SilpoMockDataSource implements SilpoDataSource {
+  String? _activeBranchId;
+
+  @override
+  String? get activeBranchId => _activeBranchId;
+
+  @override
+  void setActiveBranch(String branchId) {
+    _activeBranchId = branchId;
+  }
+
   static final Map<String, String> _barcodeToProductId = {
     '482000000001': 'p_borsch_sour_cream',
     '482000000002': 'p_coffee_lavazza',
@@ -32,6 +42,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.8,
       bonusPoints: 22,
       weightGrams: 1000,
+      imageUrl: 'https://images.silpo.ua/products/400x400/7ae6214d-8c5a-4020-bf03-cbd1f812ac5a.png',
     ),
     const Product(
       id: 'p_borsch_beet',
@@ -45,6 +56,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.9,
       bonusPoints: 3,
       weightGrams: 1000,
+      imageUrl: 'https://images.silpo.ua/products/400x400/f0429cd0-86ea-4792-a0bb-1a3801862b54.png',
     ),
     const Product(
       id: 'p_borsch_cabbage',
@@ -57,6 +69,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.7,
       bonusPoints: 2,
       weightGrams: 1000,
+      imageUrl: 'https://images.silpo.ua/products/400x400/57c88e33-babe-4fca-b3f6-9c2dafd5f033.png',
     ),
     const Product(
       id: 'p_borsch_potato',
@@ -70,6 +83,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.6,
       bonusPoints: 3,
       weightGrams: 1000,
+      imageUrl: 'https://images.silpo.ua/products/400x400/2b45e359-dde6-4719-b6fa-4f58ba0807d4.png',
     ),
     const Product(
       id: 'p_borsch_paste',
@@ -83,6 +97,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.5,
       bonusPoints: 1,
       weightGrams: 70,
+      imageUrl: 'https://images.silpo.ua/products/400x400/ba7b7fbc-c2aa-4c82-8754-332aaa961999.png',
     ),
     const Product(
       id: 'p_borsch_sour_cream',
@@ -97,6 +112,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.9,
       bonusPoints: 5,
       weightGrams: 350,
+      imageUrl: 'https://images.silpo.ua/products/400x400/8b1cf6e6-ed40-421c-9383-305cfe0bdb46.png',
     ),
     const Product(
       id: 'p_borsch_pampushki',
@@ -109,6 +125,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 5.0,
       bonusPoints: 10,
       weightGrams: 200,
+      imageUrl: 'https://images.silpo.ua/products/400x400/76a97a26-9a1f-4cfd-b1b9-f8f0542d63a8.png',
     ),
     // Tiramisu ingredients
     const Product(
@@ -123,6 +140,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.9,
       bonusPoints: 15,
       weightGrams: 250,
+      imageUrl: 'https://images.silpo.ua/products/400x400/beb1365c-4b8b-4f94-b416-c66f4b5f24fc.png',
     ),
     const Product(
       id: 'p_tira_savoiardi',
@@ -136,6 +154,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.8,
       bonusPoints: 6,
       weightGrams: 200,
+      imageUrl: 'https://images.silpo.ua/products/400x400/fc46a979-7240-436f-bca6-7972f8b801d0.png',
     ),
     const Product(
       id: 'p_coffee_lavazza',
@@ -149,6 +168,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.9,
       bonusPoints: 25,
       weightGrams: 250,
+      imageUrl: 'https://images.silpo.ua/products/400x400/72ece9f3-1482-4c85-aa72-0d84cc29bbfd.png',
     ),
     // Keto & Fish
     const Product(
@@ -163,6 +183,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.9,
       bonusPoints: 40,
       weightGrams: 1000,
+      imageUrl: 'https://images.silpo.ua/products/400x400/19b1ea76-0241-4b8d-9e22-19359769b5e0.png',
     ),
     const Product(
       id: 'p_broccoli',
@@ -175,6 +196,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.7,
       bonusPoints: 8,
       weightGrams: 1000,
+      imageUrl: 'https://images.silpo.ua/products/400x400/57c88e33-babe-4fca-b3f6-9c2dafd5f033.png',
     ),
     const Product(
       id: 'p_olive_oil',
@@ -187,6 +209,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.8,
       bonusPoints: 30,
       weightGrams: 500,
+      imageUrl: 'https://images.silpo.ua/products/400x400/d4e6c704-b806-45bb-a533-9b0d70cbe489.png',
     ),
     const Product(
       id: 'p_cheese_gouda',
@@ -200,6 +223,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.8,
       bonusPoints: 35,
       weightGrams: 1000,
+      imageUrl: 'https://images.silpo.ua/products/400x400/8619d70f-d440-4900-8c58-723d8d6e5191.png',
     ),
     const Product(
       id: 'p_chicken_fillet',
@@ -213,6 +237,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.9,
       bonusPoints: 18,
       weightGrams: 1000,
+      imageUrl: 'https://images.silpo.ua/products/400x400/7af10aa4-df53-4bb2-a650-3661b737c052.png',
     ),
     const Product(
       id: 'p_chocolate_dark',
@@ -227,6 +252,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.8,
       bonusPoints: 5,
       weightGrams: 100,
+      imageUrl: 'https://images.silpo.ua/products/400x400/293b9c24-b747-4770-bc5a-7e2f4eba35c4.png',
     ),
     const Product(
       id: 'p_milk_galychyna',
@@ -240,6 +266,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.9,
       bonusPoints: 4,
       weightGrams: 900,
+      imageUrl: 'https://images.silpo.ua/products/400x400/00f3e632-46f2-4787-9b42-247b523c3356.png',
     ),
     const Product(
       id: 'p_pasta_barilla',
@@ -253,6 +280,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 5.0,
       bonusPoints: 8,
       weightGrams: 500,
+      imageUrl: 'https://images.silpo.ua/products/400x400/fc46a979-7240-436f-bca6-7972f8b801d0.png',
     ),
     const Product(
       id: 'p_pasta_premia',
@@ -266,6 +294,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.6,
       bonusPoints: 3,
       weightGrams: 400,
+      imageUrl: 'https://images.silpo.ua/products/400x400/ba7b7fbc-c2aa-4c82-8754-332aaa961999.png',
     ),
     const Product(
       id: 'p_eggs_yasensvit',
@@ -279,6 +308,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.9,
       bonusPoints: 6,
       weightGrams: 650,
+      imageUrl: 'https://images.silpo.ua/products/400x400/64a8537a-c6c1-4dc0-9875-acbade896145.png',
     ),
     const Product(
       id: 'p_avocado_hass',
@@ -292,6 +322,7 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.9,
       bonusPoints: 12,
       weightGrams: 300,
+      imageUrl: 'https://images.silpo.ua/products/400x400/2b45e359-dde6-4719-b6fa-4f58ba0807d4.png',
     ),
     const Product(
       id: 'p_cottage_cheese',
@@ -631,8 +662,13 @@ class SilpoMockDataSource implements SilpoDataSource {
         latitude: 50.4385,
         longitude: 30.5230,
         conceptTheme: 'Музичний арт-простір',
-        amenities: ['Власна пекарня', 'Feeltrd кава', 'Суші-бар', 'Крафтове пиво Beermaster'],
+        imageUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
+        amenities: ['⚡ З генератором', '🥐 Власна пекарня', '☕ Кав\'ярня Feeltrd', '🍣 Суші-бар', 'Крафтове пиво Beermaster', '🔌 Зарядка EV', '💊 Аптека'],
         hasGenerator: true,
+        hasBakery: true,
+        hasFeeltrd: true,
+        hasEvCharging: true,
+        hasPharmacy: true,
         isFavorite: true,
         distanceKm: 0.8,
       ),
@@ -645,8 +681,13 @@ class SilpoMockDataSource implements SilpoDataSource {
         latitude: 50.4048,
         longitude: 30.6133,
         conceptTheme: 'Мавка. Лісова пісня',
-        amenities: ['Пекарня на дровах', 'Рибокоптильня', 'Піцерія', 'Кулінарія'],
+        imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
+        amenities: ['⚡ З генератором', '🥐 Власна пекарня', '☕ Кав\'ярня Feeltrd', '🐟 Рибокоптильня', '🍕 Піцерія', '🔌 Зарядка EV', '💊 Аптека'],
         hasGenerator: true,
+        hasBakery: true,
+        hasFeeltrd: true,
+        hasEvCharging: true,
+        hasPharmacy: true,
         distanceKm: 4.5,
       ),
       const SilpoStore(
@@ -658,8 +699,13 @@ class SilpoMockDataSource implements SilpoDataSource {
         latitude: 49.8077,
         longitude: 23.9782,
         conceptTheme: 'Стимпанк та наукова фантастика',
-        amenities: ['Власна сироварня', 'Дров’яна піч', 'Винний бутік'],
+        imageUrl: 'https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?auto=format&fit=crop&w=800&q=80',
+        amenities: ['⚡ З генератором', '🥐 Власна пекарня', '☕ Кав\'ярня Feeltrd', '🧀 Власна сироварня', 'Дров’яна піч', '🔌 Зарядка EV', '💊 Аптека'],
         hasGenerator: true,
+        hasBakery: true,
+        hasFeeltrd: true,
+        hasEvCharging: true,
+        hasPharmacy: true,
         distanceKm: 2.1,
       ),
       const SilpoStore(
@@ -671,8 +717,13 @@ class SilpoMockDataSource implements SilpoDataSource {
         latitude: 46.4258,
         longitude: 30.7042,
         conceptTheme: 'Вінтажний цирк',
-        amenities: ['Морепродукти на льоду', 'Feeltrd кав’ярня', 'Свіжа випічка'],
+        imageUrl: 'https://images.unsplash.com/photo-1580828343064-fde4fc206bc6?auto=format&fit=crop&w=800&q=80',
+        amenities: ['⚡ З генератором', '🥐 Власна пекарня', '☕ Кав\'ярня Feeltrd', 'Морепродукти на льоду', '🔌 Зарядка EV'],
         hasGenerator: true,
+        hasBakery: true,
+        hasFeeltrd: true,
+        hasEvCharging: true,
+        hasPharmacy: false,
         distanceKm: 3.2,
       ),
     ];

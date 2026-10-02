@@ -43,10 +43,22 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ChatScreen(
             chatViewModel: widget.chatViewModel,
             cartViewModel: widget.cartViewModel,
+            storeViewModel: widget.storeViewModel,
+            onSelectStore: () {
+              setState(() {
+                _currentIndex = 3;
+              });
+            },
           ),
           PromoScreen(
             promoViewModel: widget.promoViewModel,
             cartViewModel: widget.cartViewModel,
+            storeViewModel: widget.storeViewModel,
+            onSelectStore: () {
+              setState(() {
+                _currentIndex = 3;
+              });
+            },
           ),
           CartScreen(
             cartViewModel: widget.cartViewModel,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/promo.dart';
 import '../../core/constants/app_colors.dart';
 import 'silpo_badge.dart';
+import 'silpo_network_image.dart';
 
 class PromoCard extends StatelessWidget {
   final PromoItem promo;
@@ -22,6 +23,14 @@ class PromoCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      elevation: isDark ? 0 : 1.5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: isDark ? Colors.white12 : Colors.grey[200]!,
+          width: 1,
+        ),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -41,47 +50,75 @@ class PromoCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SilpoBadge(
-                    text: '-${promo.discountPercent}%',
-                    type: SilpoBadgeType.discount,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.timer_outlined, size: 13, color: AppColors.silpoOrange),
-                        const SizedBox(width: 4),
+                        Row(
+                          children: [
+                            SilpoBadge(
+                              text: '-${promo.discountPercent}%',
+                              type: SilpoBadgeType.discount,
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.timer_outlined, size: 13, color: AppColors.silpoOrange),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${promo.daysRemaining} дн.',
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
                         Text(
-                          '${promo.daysRemaining} дн.',
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                          promo.title,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            height: 1.2,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          promo.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            height: 1.3,
+                          ),
                         ),
                       ],
                     ),
                   ),
+                  if (promo.imageUrl != null && promo.imageUrl!.isNotEmpty) ...[
+                    const SizedBox(width: 12),
+                    SilpoNetworkImage(
+                      imageUrl: promo.imageUrl,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.contain,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ],
                 ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                promo.title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                promo.description,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                  height: 1.3,
-                ),
               ),
               const SizedBox(height: 12),
               Row(

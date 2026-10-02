@@ -13,6 +13,14 @@ class SilpoStore {
   final bool isFavorite;
   final double distanceKm;
 
+  final String? imageUrl;
+  final bool hasBakery;
+  final bool hasFeeltrd;
+  final bool hasEvCharging;
+  final bool hasPharmacy;
+  final bool isOpen;
+  final String? phone;
+
   const SilpoStore({
     required this.filialId,
     required this.name,
@@ -26,6 +34,13 @@ class SilpoStore {
     this.hasGenerator = true,
     this.isFavorite = false,
     this.distanceKm = 1.2,
+    this.imageUrl,
+    this.hasBakery = true,
+    this.hasFeeltrd = true,
+    this.hasEvCharging = false,
+    this.hasPharmacy = false,
+    this.isOpen = true,
+    this.phone,
   });
 
   SilpoStore copyWith({
@@ -41,6 +56,13 @@ class SilpoStore {
     bool? hasGenerator,
     bool? isFavorite,
     double? distanceKm,
+    String? imageUrl,
+    bool? hasBakery,
+    bool? hasFeeltrd,
+    bool? hasEvCharging,
+    bool? hasPharmacy,
+    bool? isOpen,
+    String? phone,
   }) {
     return SilpoStore(
       filialId: filialId ?? this.filialId,
@@ -55,6 +77,13 @@ class SilpoStore {
       hasGenerator: hasGenerator ?? this.hasGenerator,
       isFavorite: isFavorite ?? this.isFavorite,
       distanceKm: distanceKm ?? this.distanceKm,
+      imageUrl: imageUrl ?? this.imageUrl,
+      hasBakery: hasBakery ?? this.hasBakery,
+      hasFeeltrd: hasFeeltrd ?? this.hasFeeltrd,
+      hasEvCharging: hasEvCharging ?? this.hasEvCharging,
+      hasPharmacy: hasPharmacy ?? this.hasPharmacy,
+      isOpen: isOpen ?? this.isOpen,
+      phone: phone ?? this.phone,
     );
   }
 }

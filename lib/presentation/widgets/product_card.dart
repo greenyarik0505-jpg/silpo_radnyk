@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/product.dart';
 import '../../core/constants/app_colors.dart';
 import 'silpo_badge.dart';
+import 'silpo_network_image.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -21,6 +22,14 @@ class ProductCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Card(
+      elevation: isDark ? 0 : 1.5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: isDark ? Colors.white12 : Colors.grey[200]!,
+          width: 1,
+        ),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -46,30 +55,36 @@ class ProductCard extends StatelessWidget {
                     ),
                   ],
                   const Spacer(),
-                  if (product.isPrivateLabel)
+                  if (product.rating != null)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
+                        const SizedBox(width: 2),
+                        Text(
+                          product.rating!.toStringAsFixed(1),
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  if (product.isPrivateLabel) ...[
+                    const SizedBox(width: 4),
                     SilpoBadge(
                       text: product.brand ?? 'Власна марка',
                       type: SilpoBadgeType.privateLabel,
                     ),
+                  ],
                 ],
               ),
               const SizedBox(height: 8),
 
-              // Product Image Placeholder with stylish icon
-              Container(
-                height: 100,
+              // Product Image with Real Photo from Silpo CDN
+              SilpoNetworkImage(
+                imageUrl: product.imageUrl,
+                height: 110,
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Icon(
-                    _getCategoryIcon(product.category),
-                    size: 44,
-                    color: AppColors.silpoOrange.withValues(alpha: 0.8),
-                  ),
-                ),
+                fit: BoxFit.contain,
+                fallbackIcon: _getCategoryIcon(product.category),
               ),
               const SizedBox(height: 10),
 

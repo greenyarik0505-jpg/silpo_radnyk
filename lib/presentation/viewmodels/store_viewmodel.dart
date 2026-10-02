@@ -14,6 +14,8 @@ class StoreViewModel extends ChangeNotifier {
   bool _onlyWithGenerator = false;
   bool _onlyWithBakery = false;
   bool _onlyWithFeeltrd = false;
+  bool _onlyWithEvCharging = false;
+  bool _onlyWithPharmacy = false;
 
   StoreViewModel({SilpoRepository? repository})
       : _repository = repository ?? SilpoRepository() {
@@ -26,12 +28,16 @@ class StoreViewModel extends ChangeNotifier {
           s.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           s.address.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           (s.conceptTheme != null && s.conceptTheme!.toLowerCase().contains(_searchQuery.toLowerCase()));
-      final matchesCity = _selectedCity == null || _selectedCity == 'Всі міста' || s.city == _selectedCity;
+      final matchesCity = _selectedCity == null ||
+          _selectedCity == 'Всі міста' ||
+          s.city.toLowerCase() == _selectedCity!.toLowerCase();
       final matchesGenerator = !_onlyWithGenerator || s.hasGenerator;
-      final matchesBakery = !_onlyWithBakery || s.amenities.any((a) => a.toLowerCase().contains('пекарня'));
-      final matchesFeeltrd = !_onlyWithFeeltrd || s.amenities.any((a) => a.toLowerCase().contains('feeltrd'));
+      final matchesBakery = !_onlyWithBakery || s.hasBakery || s.amenities.any((a) => a.toLowerCase().contains('пекарн'));
+      final matchesFeeltrd = !_onlyWithFeeltrd || s.hasFeeltrd || s.amenities.any((a) => a.toLowerCase().contains('feeltrd'));
+      final matchesEv = !_onlyWithEvCharging || s.hasEvCharging || s.amenities.any((a) => a.toLowerCase().contains('зарядка') || a.toLowerCase().contains('ev'));
+      final matchesPharmacy = !_onlyWithPharmacy || s.hasPharmacy || s.amenities.any((a) => a.toLowerCase().contains('аптека'));
 
-      return matchesQuery && matchesCity && matchesGenerator && matchesBakery && matchesFeeltrd;
+      return matchesQuery && matchesCity && matchesGenerator && matchesBakery && matchesFeeltrd && matchesEv && matchesPharmacy;
     }).toList();
   }
 
@@ -42,16 +48,29 @@ class StoreViewModel extends ChangeNotifier {
   bool get onlyWithGenerator => _onlyWithGenerator;
   bool get onlyWithBakery => _onlyWithBakery;
   bool get onlyWithFeeltrd => _onlyWithFeeltrd;
+  bool get onlyWithEvCharging => _onlyWithEvCharging;
+  bool get onlyWithPharmacy => _onlyWithPharmacy;
 
-  List<String> get cities => ['Всі міста', 'Київ', 'Львів', 'Одеса', 'Дніпро', 'Харків'];
+  List<String> get cities {
+    final topPriority = ['Всі міста', 'Київ', 'Львів', 'Одеса', 'Дніпро', 'Харків'];
+    final dynamicCities = _allStores
+        .map((s) => s.city.trim())
+        .where((c) => c.isNotEmpty && !topPriority.contains(c))
+        .toSet()
+        .toList()
+      ..sort();
+    return [...topPriority, ...dynamicCities];
+  }
 
   Future<void> loadStores() async {
     _isLoading = true;
     notifyListeners();
     try {
       _allStores = await _repository.getStores();
-      if (_allStores.isNotEmpty && _selectedStore == null) {
-        _selectedStore = _allStores.firstWhere((s) => s.isFavorite, orElse: () => _allStores.first);
+      if (_allStores.isNotEmpty) {
+        _selectedStore ??= _repository.activeStore ??
+            _allStores.firstWhere((s) => s.isFavorite, orElse: () => _allStores.first);
+        _repository.setActiveStore(_selectedStore!);
       }
     } finally {
       _isLoading = false;
@@ -84,8 +103,19 @@ class StoreViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleEvFilter() {
+    _onlyWithEvCharging = !_onlyWithEvCharging;
+    notifyListeners();
+  }
+
+  void togglePharmacyFilter() {
+    _onlyWithPharmacy = !_onlyWithPharmacy;
+    notifyListeners();
+  }
+
   void selectStore(SilpoStore store) {
     _selectedStore = store;
+    _repository.setActiveStore(store);
     notifyListeners();
   }
 

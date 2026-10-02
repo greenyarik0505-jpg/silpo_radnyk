@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/cart_item.dart';
 import '../../core/constants/app_colors.dart';
 import 'silpo_badge.dart';
+import 'silpo_network_image.dart';
 
 class CartItemTile extends StatelessWidget {
   final CartItem cartItem;
@@ -25,6 +26,13 @@ class CartItemTile extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      elevation: isDark ? 0 : 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: isDark ? Colors.white12 : Colors.grey[200]!,
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -32,17 +40,14 @@ class CartItemTile extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Product Icon
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.fastfood, color: AppColors.silpoOrange, size: 28),
-                  ),
+                // Product Image from Silpo CDN
+                SilpoNetworkImage(
+                  imageUrl: product.imageUrl,
+                  width: 58,
+                  height: 58,
+                  fit: BoxFit.contain,
+                  borderRadius: BorderRadius.circular(10),
+                  fallbackIcon: Icons.shopping_basket_outlined,
                 ),
                 const SizedBox(width: 12),
 

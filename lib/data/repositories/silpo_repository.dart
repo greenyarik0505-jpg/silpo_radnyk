@@ -8,7 +8,7 @@ import '../../domain/entities/chat_message.dart';
 import '../../core/mcp/mcp_client.dart';
 import '../../core/mcp/silpo_mcp_tools.dart';
 import '../datasources/silpo_datasource.dart';
-import '../datasources/silpo_mock_datasource.dart';
+import '../datasources/silpo_remote_datasource.dart';
 import '../datasources/gemini_ai_service.dart';
 
 class SilpoRepository {
@@ -16,16 +16,26 @@ class SilpoRepository {
   final McpClient _mcpClient;
   final GeminiAiService _geminiService;
 
+  SilpoStore? _activeStore;
+
   SilpoRepository({
     SilpoDataSource? dataSource,
     McpClient? mcpClient,
     GeminiAiService? geminiService,
-  })  : _dataSource = dataSource ?? SilpoMockDataSource(),
+  })  : _dataSource = dataSource ?? SilpoRemoteDataSource(),
         _mcpClient = mcpClient ?? McpClient(),
         _geminiService = geminiService ?? GeminiAiService();
 
   McpClient get mcpClient => _mcpClient;
   GeminiAiService get geminiService => _geminiService;
+
+  SilpoStore? get activeStore => _activeStore;
+  String? get activeBranchId => _activeStore?.filialId ?? _dataSource.activeBranchId;
+
+  void setActiveStore(SilpoStore store) {
+    _activeStore = store;
+    _dataSource.setActiveBranch(store.filialId);
+  }
 
   /// Calls Google AI Studio Gemini 3.1 Flash Lite API with Silpo catalog grounding.
   Future<ChatMessage> askGemini({
@@ -39,7 +49,8 @@ class SilpoRepository {
   }
 
   Future<List<Product>> searchProducts(String query, {String? category, String? filialId}) async {
-    return _dataSource.searchProducts(query, category: category, filialId: filialId);
+    final branch = (filialId != null && filialId.isNotEmpty) ? filialId : activeBranchId;
+    return _dataSource.searchProducts(query, category: category, filialId: branch);
   }
 
   Future<Product?> getProductDetails(String id) async {
@@ -71,7 +82,12 @@ class SilpoRepository {
   }
 
   Future<List<SilpoStore>> getStores({String? city}) async {
-    return _dataSource.getStores(city: city);
+    final stores = await _dataSource.getStores(city: city);
+    if (_activeStore == null && stores.isNotEmpty) {
+      final preferred = stores.firstWhere((s) => s.isFavorite, orElse: () => stores.first);
+      setActiveStore(preferred);
+    }
+    return stores;
   }
 
   Future<List<FiscalReceipt>> getFiscalReceipts() async {
@@ -79,7 +95,8 @@ class SilpoRepository {
   }
 
   Future<List<DeliverySlot>> getDeliverySlots({String? filialId}) async {
-    return _dataSource.getDeliverySlots(filialId: filialId);
+    final branch = (filialId != null && filialId.isNotEmpty) ? filialId : activeBranchId;
+    return _dataSource.getDeliverySlots(filialId: branch);
   }
 
   List<dynamic> getInflationMetrics() {

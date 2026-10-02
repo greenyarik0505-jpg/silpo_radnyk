@@ -6,17 +6,22 @@ import '../../domain/entities/product.dart';
 import '../../domain/entities/recipe.dart';
 import '../viewmodels/chat_viewmodel.dart';
 import '../viewmodels/cart_viewmodel.dart';
+import '../viewmodels/store_viewmodel.dart';
 import '../widgets/product_card.dart';
 import '../widgets/product_details_sheet.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatViewModel chatViewModel;
   final CartViewModel cartViewModel;
+  final StoreViewModel? storeViewModel;
+  final VoidCallback? onSelectStore;
 
   const ChatScreen({
     super.key,
     required this.chatViewModel,
     required this.cartViewModel,
+    this.storeViewModel,
+    this.onSelectStore,
   });
 
   @override
@@ -70,6 +75,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return ListenableBuilder(
       listenable: widget.chatViewModel,
       builder: (context, _) {
+        final activeStore = widget.storeViewModel?.selectedStore;
         return Scaffold(
           appBar: AppBar(
             title: Row(
@@ -83,18 +89,26 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: const Icon(Icons.auto_awesome, color: AppColors.silpoOrange, size: 20),
                 ),
                 const SizedBox(width: 10),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppStrings.tabAiChat,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Expanded(
+                  child: InkWell(
+                    onTap: widget.onSelectStore,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          AppStrings.tabAiChat,
+                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          activeStore != null
+                              ? '📍 ${activeStore.name} • AI-Шеф'
+                              : 'AI-Шеф & Рецепти в кошик • Gemini 3.1',
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 11, color: AppColors.silpoOrange, fontWeight: FontWeight.w600),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'AI-Шеф & Рецепти в кошик • Gemini 3.1 Flash Lite',
-                      style: TextStyle(fontSize: 11, color: AppColors.silpoOrange, fontWeight: FontWeight.w600),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -268,14 +282,14 @@ class _ChatScreenState extends State<ChatScreen> {
             if (message.recommendedProducts != null && message.recommendedProducts!.isNotEmpty) ...[
               const SizedBox(height: 10),
               SizedBox(
-                height: 220,
+                height: 285,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: message.recommendedProducts!.length,
                   itemBuilder: (context, pIndex) {
                     final product = message.recommendedProducts![pIndex];
                     return SizedBox(
-                      width: 170,
+                      width: 185,
                       child: ProductCard(
                         product: product,
                         onTap: () => ProductDetailsSheet.show(context, product, widget.cartViewModel),
