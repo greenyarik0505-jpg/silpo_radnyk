@@ -192,9 +192,30 @@ class _McpConsoleScreenState extends State<McpConsoleScreen> {
                                 ? null
                                 : () {
                                     Map<String, dynamic> parsedArgs = {};
-                                    try {
-                                      parsedArgs = jsonDecode(_argsController.text) as Map<String, dynamic>;
-                                    } catch (_) {}
+                                    final raw = _argsController.text.trim();
+                                    if (raw.isNotEmpty && raw != '{}') {
+                                      try {
+                                        final decoded = jsonDecode(raw);
+                                        if (decoded is! Map<String, dynamic>) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Помилка: Аргументи повинні бути коректним JSON-об’єктом { ... }'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                          return;
+                                        }
+                                        parsedArgs = decoded;
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Помилка синтаксису JSON: перевірте валідність лапок та дужок ($e)'),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                    }
                                     widget.mcpViewModel.executeTool(_selectedTool!.name, parsedArgs);
                                   },
                           ),
@@ -203,9 +224,26 @@ class _McpConsoleScreenState extends State<McpConsoleScreen> {
 
                       if (widget.mcpViewModel.lastResult != null) ...[
                         const SizedBox(height: 16),
-                        const Text(
-                          'Результат (MCP Content):',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Результат (MCP Content):',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            TextButton.icon(
+                              icon: const Icon(Icons.copy, size: 14),
+                              label: const Text('Копіювати', style: TextStyle(fontSize: 12)),
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Результат MCP скопійовано!'),
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 6),
                         Container(
@@ -302,11 +340,21 @@ class _McpConsoleScreenState extends State<McpConsoleScreen> {
 
   void _updateDefaultArgs(String toolName) {
     if (toolName.contains('search')) {
-      _argsController.text = '{"query": "сир", "limit": 10}';
+      _argsController.text = '{"query": "сир Гауда", "limit": 10}';
     } else if (toolName.contains('recipe')) {
       _argsController.text = '{"recipeText": "Український борщ", "servings": 4}';
     } else if (toolName.contains('cart')) {
       _argsController.text = '{"productId": "p_borsch_beef", "quantity": 1}';
+    } else if (toolName.contains('delivery')) {
+      _argsController.text = '{"filialId": "silpo_kyiv_gulliver"}';
+    } else if (toolName.contains('store')) {
+      _argsController.text = '{"city": "Київ"}';
+    } else if (toolName.contains('receipt') || toolName.contains('fiscal')) {
+      _argsController.text = '{"limit": 5}';
+    } else if (toolName.contains('inflation')) {
+      _argsController.text = '{"periodMonths": 6}';
+    } else if (toolName.contains('boost')) {
+      _argsController.text = '{"couponId": "boost_coffee_x3"}';
     } else {
       _argsController.text = '{}';
     }

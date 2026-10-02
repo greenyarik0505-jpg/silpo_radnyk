@@ -4,6 +4,7 @@ import '../../core/constants/app_strings.dart';
 import '../../domain/entities/delivery_slot.dart';
 import '../viewmodels/cart_viewmodel.dart';
 import '../widgets/cart_item_tile.dart';
+import 'vilnokasa_screen.dart';
 
 class CartScreen extends StatelessWidget {
   final CartViewModel cartViewModel;
@@ -27,6 +28,18 @@ class CartScreen extends StatelessWidget {
           appBar: AppBar(
             title: Text('${AppStrings.cartTitle} (${cartViewModel.itemCount})'),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.qr_code_scanner, color: AppColors.silpoOrange),
+                tooltip: 'Вільнокаса (скан у магазині)',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => VilnokasaScreen(cartViewModel: cartViewModel),
+                    ),
+                  );
+                },
+              ),
               if (!cartViewModel.isEmpty)
                 IconButton(
                   icon: const Icon(Icons.delete_sweep_outlined),
@@ -41,6 +54,9 @@ class CartScreen extends StatelessWidget {
               ? _buildEmptyState(context, isDark)
               : Column(
                   children: [
+                    // Free delivery threshold progress bar
+                    _buildFreeDeliveryProgressBar(context, isDark),
+
                     // Delivery slot selector pill list
                     _buildDeliverySlotsSelector(context, isDark),
 
@@ -69,6 +85,61 @@ class CartScreen extends StatelessWidget {
                 ),
         );
       },
+    );
+  }
+
+  Widget _buildFreeDeliveryProgressBar(BuildContext context, bool isDark) {
+    const double freeDeliveryThreshold = 399.0;
+    final current = cartViewModel.totalPrice;
+    final remaining = freeDeliveryThreshold - current;
+    final progress = (current / freeDeliveryThreshold).clamp(0.0, 1.0);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: isDark ? AppColors.darkSurface : const Color(0xFFFFF9F5),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    remaining <= 0 ? Icons.check_circle : Icons.local_shipping_outlined,
+                    size: 16,
+                    color: remaining <= 0 ? AppColors.successGreen : AppColors.silpoOrange,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    remaining <= 0
+                        ? '🎉 Безкоштовна доставка активована!'
+                        : 'До безкоштовної доставки: ${remaining.toStringAsFixed(2)} ₴',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: remaining <= 0 ? AppColors.successGreen : AppColors.silpoOrange,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                'від 399 ₴',
+                style: TextStyle(fontSize: 11, color: isDark ? Colors.white54 : Colors.grey),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.grey.withValues(alpha: 0.2),
+              color: remaining <= 0 ? AppColors.successGreen : AppColors.silpoOrange,
+              minHeight: 6,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

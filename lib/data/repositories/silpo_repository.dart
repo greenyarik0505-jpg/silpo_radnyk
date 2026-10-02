@@ -4,6 +4,7 @@ import '../../domain/entities/promo.dart';
 import '../../domain/entities/receipt.dart';
 import '../../domain/entities/store.dart';
 import '../../domain/entities/delivery_slot.dart';
+import '../../domain/entities/silpo_boost.dart';
 import '../../core/mcp/mcp_client.dart';
 import '../../core/mcp/silpo_mcp_tools.dart';
 import '../datasources/silpo_datasource.dart';
@@ -27,6 +28,10 @@ class SilpoRepository {
 
   Future<Product?> getProductDetails(String id) async {
     return _dataSource.getProductDetails(id);
+  }
+
+  Future<Product?> getProductByBarcode(String barcode) async {
+    return _dataSource.getProductByBarcode(barcode);
   }
 
   Future<List<PromoItem>> getPromos() async {
@@ -56,6 +61,18 @@ class SilpoRepository {
 
   Future<List<FiscalReceipt>> getFiscalReceipts() async {
     return _dataSource.getFiscalReceipts();
+  }
+
+  Future<FiscalReceipt?> importFiscalReceiptByQr(String qrContent) async {
+    return _dataSource.importFiscalReceiptByQr(qrContent);
+  }
+
+  Future<List<SilpoBoostCoupon>> getBoostCoupons() async {
+    return _dataSource.getBoostCoupons();
+  }
+
+  Future<bool> activateBoostCoupon(String couponId) async {
+    return _dataSource.activateBoostCoupon(couponId);
   }
 
   Future<List<DeliverySlot>> getDeliverySlots({String? filialId}) async {

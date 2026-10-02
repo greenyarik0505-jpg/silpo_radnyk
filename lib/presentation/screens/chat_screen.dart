@@ -24,12 +24,28 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  int _lastMessageCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastMessageCount = widget.chatViewModel.messages.length;
+    widget.chatViewModel.addListener(_onChatUpdated);
+  }
 
   @override
   void dispose() {
+    widget.chatViewModel.removeListener(_onChatUpdated);
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onChatUpdated() {
+    if (widget.chatViewModel.messages.length != _lastMessageCount || widget.chatViewModel.isTyping) {
+      _lastMessageCount = widget.chatViewModel.messages.length;
+      _scrollToBottom();
+    }
   }
 
   void _scrollToBottom() {
@@ -52,7 +68,6 @@ class _ChatScreenState extends State<ChatScreen> {
     return ListenableBuilder(
       listenable: widget.chatViewModel,
       builder: (context, _) {
-        _scrollToBottom();
         return Scaffold(
           appBar: AppBar(
             title: Row(
@@ -213,7 +228,7 @@ class _ChatScreenState extends State<ChatScreen> {
             // Recipe Card if included
             if (message.recipe != null) ...[
               const SizedBox(height: 10),
-              _buildRecipeCard(message.recipe!, isDark),
+              _buildRecipeCard(message.id, message.recipe!, isDark),
             ],
 
             // Recommended Products carousel if included
@@ -271,7 +286,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildRecipeCard(Recipe recipe, bool isDark) {
+  Widget _buildRecipeCard(String messageId, Recipe recipe, bool isDark) {
     return Card(
       color: isDark ? AppColors.darkSurface : const Color(0xFFFFF9F5),
       shape: RoundedRectangleBorder(
@@ -307,10 +322,45 @@ class _ChatScreenState extends State<ChatScreen> {
             Row(
               children: [
                 _buildInfoBadge(Icons.timer_outlined, '${recipe.cookTimeMinutes} хв'),
-                const SizedBox(width: 10),
-                _buildInfoBadge(Icons.people_outline, '${recipe.servings} порції'),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 _buildInfoBadge(Icons.speed, recipe.difficulty),
+                const Spacer(),
+                // Portion Stepper
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.silpoOrange.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.silpoOrange.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        onTap: recipe.servings > 1
+                            ? () => widget.chatViewModel.updateRecipeServings(messageId, recipe.servings - 1)
+                            : null,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          child: Icon(Icons.remove, size: 16, color: AppColors.silpoOrange),
+                        ),
+                      ),
+                      Text(
+                        '${recipe.servings} порції',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.silpoOrange),
+                      ),
+                      InkWell(
+                        onTap: recipe.servings < 12
+                            ? () => widget.chatViewModel.updateRecipeServings(messageId, recipe.servings + 1)
+                            : null,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          child: Icon(Icons.add, size: 16, color: AppColors.silpoOrange),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
             const Divider(height: 24),
@@ -319,24 +369,48 @@ class _ChatScreenState extends State<ChatScreen> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(height: 8),
-            ...recipe.ingredients.map((ing) {
-              final prod = ing.substituteProduct ?? ing.matchedProduct;
+            ...recipe.ingredients.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final ing = entry.value;
+              final prod = ing.matchedProduct;
+              final sub = ing.substituteProduct;
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.check_circle_outline, size: 16, color: AppColors.successGreen),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '${ing.name} (${ing.amount} ${ing.unit})',
-                        style: const TextStyle(fontSize: 13),
-                      ),
+                    Row(
+                      children: [
+                        const Icon(Icons.check_circle_outline, size: 16, color: AppColors.successGreen),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${ing.name} (${ing.amount} ${ing.unit})',
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                        ),
+                        if (prod != null)
+                          Text(
+                            '${ing.cost.toStringAsFixed(2)} ₴',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.silpoOrange),
+                          ),
+                      ],
                     ),
-                    if (prod != null)
-                      Text(
-                        '${prod.currentPrice.toStringAsFixed(2)} ₴',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.silpoOrange),
+                    if (sub != null)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 24, top: 2),
+                        child: InkWell(
+                          onTap: () => widget.chatViewModel.toggleSubstitute(messageId, idx),
+                          child: Text(
+                            '🔄 Замінити на ${sub.title} (${sub.currentPrice.toStringAsFixed(2)} ₴)',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.silpoOrange,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
                       ),
                   ],
                 ),

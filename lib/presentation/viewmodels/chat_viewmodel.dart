@@ -136,6 +136,33 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
+  /// Dynamically updates the servings for a recipe attached to a chat message.
+  void updateRecipeServings(String messageId, int newServings) {
+    if (newServings < 1 || newServings > 12) return;
+    final index = _messages.indexWhere((m) => m.id == messageId);
+    if (index != -1) {
+      final msg = _messages[index];
+      if (msg.recipe != null) {
+        final scaled = msg.recipe!.scaleServings(newServings);
+        _messages[index] = msg.copyWith(recipe: scaled);
+        notifyListeners();
+      }
+    }
+  }
+
+  /// Toggles an ingredient substitute in a recipe message between standard and private label.
+  void toggleSubstitute(String messageId, int ingredientIndex) {
+    final index = _messages.indexWhere((m) => m.id == messageId);
+    if (index != -1) {
+      final msg = _messages[index];
+      if (msg.recipe != null) {
+        final updatedRecipe = msg.recipe!.withToggledSubstitute(ingredientIndex);
+        _messages[index] = msg.copyWith(recipe: updatedRecipe);
+        notifyListeners();
+      }
+    }
+  }
+
   void clearHistory() {
     _messages.clear();
     _initGreeting();

@@ -18,7 +18,14 @@ class RecipeIngredient {
     this.isOptional = false,
   });
 
-  double get cost => (matchedProduct?.currentPrice ?? 0.0) * (amount > 0 ? 1 : 1);
+  double get cost {
+    final p = matchedProduct;
+    if (p == null) return 0.0;
+    if (unit == 'г' && p.unit == 'кг') {
+      return p.currentPrice * (amount / 1000.0);
+    }
+    return p.currentPrice * (amount > 0 ? amount : 1.0);
+  }
 
   RecipeIngredient copyWith({
     String? name,
@@ -39,7 +46,7 @@ class RecipeIngredient {
   }
 }
 
-/// Full culinary recipe with AI-parsed ingredients and direct cart-transfer support.
+/// Full culinary recipe with AI-parsed ingredients, portion scaling and direct cart-transfer support.
 class Recipe {
   final String id;
   final String title;
@@ -67,15 +74,65 @@ class Recipe {
 
   double get totalEstimatedCost {
     return ingredients.fold(0.0, (sum, item) {
-      final p = item.substituteProduct ?? item.matchedProduct;
-      return sum + (p?.currentPrice ?? 0.0);
+      return sum + item.cost;
     });
   }
 
   double get totalSavings {
     return ingredients.fold(0.0, (sum, item) {
-      final p = item.substituteProduct ?? item.matchedProduct;
-      return sum + (p?.savings ?? 0.0);
+      return sum + (item.matchedProduct?.savings ?? 0.0);
     });
+  }
+
+  /// Scales recipe servings dynamically and recalculates all ingredient amounts.
+  Recipe scaleServings(int targetServings) {
+    if (targetServings <= 0 || targetServings == servings) return this;
+    final ratio = targetServings / servings;
+    final scaledIngredients = ingredients.map((ing) {
+      return ing.copyWith(
+        amount: double.parse((ing.amount * ratio).toStringAsFixed(2)),
+      );
+    }).toList();
+
+    return Recipe(
+      id: id,
+      title: title,
+      description: description,
+      cookTimeMinutes: cookTimeMinutes,
+      difficulty: difficulty,
+      servings: targetServings,
+      imageUrl: imageUrl,
+      dietaryTags: dietaryTags,
+      ingredients: scaledIngredients,
+      steps: steps,
+    );
+  }
+
+  /// Swaps an ingredient with its cheaper private label / alternative substitute.
+  Recipe withToggledSubstitute(int index) {
+    if (index < 0 || index >= ingredients.length) return this;
+    final current = ingredients[index];
+    if (current.substituteProduct == null) return this;
+
+    final updated = current.copyWith(
+      matchedProduct: current.substituteProduct,
+      substituteProduct: current.matchedProduct,
+    );
+
+    final newIngredients = List<RecipeIngredient>.from(ingredients);
+    newIngredients[index] = updated;
+
+    return Recipe(
+      id: id,
+      title: title,
+      description: description,
+      cookTimeMinutes: cookTimeMinutes,
+      difficulty: difficulty,
+      servings: servings,
+      imageUrl: imageUrl,
+      dietaryTags: dietaryTags,
+      ingredients: newIngredients,
+      steps: steps,
+    );
   }
 }

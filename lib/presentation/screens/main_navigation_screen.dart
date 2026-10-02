@@ -7,6 +7,7 @@ import '../viewmodels/cart_viewmodel.dart';
 import '../viewmodels/analytics_viewmodel.dart';
 import '../viewmodels/store_viewmodel.dart';
 import '../viewmodels/mcp_viewmodel.dart';
+import '../viewmodels/boost_viewmodel.dart';
 import 'chat_screen.dart';
 import 'promo_screen.dart';
 import 'cart_screen.dart';
@@ -20,6 +21,7 @@ class MainNavigationScreen extends StatefulWidget {
   final AnalyticsViewModel analyticsViewModel;
   final StoreViewModel storeViewModel;
   final McpViewModel mcpViewModel;
+  final BoostViewModel? boostViewModel;
 
   const MainNavigationScreen({
     super.key,
@@ -29,6 +31,7 @@ class MainNavigationScreen extends StatefulWidget {
     required this.analyticsViewModel,
     required this.storeViewModel,
     required this.mcpViewModel,
+    this.boostViewModel,
   });
 
   @override
@@ -62,10 +65,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
           AnalyticsScreen(
             analyticsViewModel: widget.analyticsViewModel,
+            boostViewModel: widget.boostViewModel,
           ),
           StoresScreen(
             storeViewModel: widget.storeViewModel,
             mcpViewModel: widget.mcpViewModel,
+            cartViewModel: widget.cartViewModel,
           ),
         ];
 

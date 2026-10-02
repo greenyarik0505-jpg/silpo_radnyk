@@ -39,4 +39,15 @@ class AnalyticsViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// Imports a fiscal receipt scanned from paper QR code or check.gov.ua
+  Future<void> importReceiptFromQr(String qrContent) async {
+    final newReceipt = await _repository.importFiscalReceiptByQr(qrContent);
+    if (newReceipt != null) {
+      _receipts = [newReceipt, ..._receipts];
+      _categorySpending = await _repository.getCategorySpending();
+      _loyaltyBalance += newReceipt.bonusPointsEarned;
+      notifyListeners();
+    }
+  }
 }

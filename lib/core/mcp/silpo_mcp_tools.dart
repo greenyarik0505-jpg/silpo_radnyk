@@ -72,6 +72,69 @@ class SilpoMcpTools {
         },
       ),
       const McpTool(
+        name: getProductDetails,
+        description: 'Отримання детальної інформації про товар за ID (ціна, залишки, склад, виробник).',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'productId': {'type': 'string', 'description': 'Унікальний ідентифікатор товару'},
+          },
+          'required': ['productId'],
+        },
+      ),
+      const McpTool(
+        name: getProductByBarcode,
+        description: 'Пошук товару за штрихкодом (EAN-13, ITF-14) для «Вільнокаси».',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'barcode': {'type': 'string', 'description': 'Штрихкод товару (наприклад, 482000000001)'},
+          },
+          'required': ['barcode'],
+        },
+      ),
+      const McpTool(
+        name: getCategories,
+        description: 'Отримання повного дерева товарних категорій супермаркету Сільпо.',
+        inputSchema: {'type': 'object', 'properties': {}},
+      ),
+      const McpTool(
+        name: getRecommendations,
+        description: 'Персональні рекомендації товарів на основі попередніх покупок та переглядів.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'limit': {'type': 'integer', 'default': 10},
+          },
+        },
+      ),
+      const McpTool(
+        name: searchSubstitutions,
+        description: 'Пошук альтернативних та дешевших замінників товару (зокрема «Премія», «Повна Чаша»).',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'productId': {'type': 'string', 'description': 'ID товару, до якого потрібна заміна'},
+          },
+          'required': ['productId'],
+        },
+      ),
+      const McpTool(
+        name: filterByDietary,
+        description: 'Фільтрація продуктів за дієтичними ознаками: без цукру, без лактози, кето, веган.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'tags': {
+              'type': 'array',
+              'items': {'type': 'string'},
+              'description': 'Дієтичні теги',
+            },
+          },
+          'required': ['tags'],
+        },
+      ),
+      const McpTool(
         name: getCinotyzhiki,
         description: 'Отримання актуальних знижок тижня «Цінотижики» Сільпо.',
         inputSchema: {
@@ -81,6 +144,222 @@ class SilpoMcpTools {
             'minDiscountPercent': {'type': 'number', 'description': 'Мінімальний відсоток знижки'},
           },
         },
+      ),
+      const McpTool(
+        name: getWheelOfFortune,
+        description: 'Отримання доступності та щоденних призів гри «Колесо Фортуни».',
+        inputSchema: {'type': 'object', 'properties': {}},
+      ),
+      const McpTool(
+        name: getPersonalDeals,
+        description: 'Персональні спеціальні пропозиції програми лояльності «Власний Рахунок».',
+        inputSchema: {'type': 'object', 'properties': {}},
+      ),
+      const McpTool(
+        name: getPriceDrops,
+        description: 'Товари, на які нещодавно знизилася ціна або почалася акція.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'daysBack': {'type': 'integer', 'default': 3},
+          },
+        },
+      ),
+      const McpTool(
+        name: getLoyaltyMultipliers,
+        description: 'Отримання активних купонів та буст-множників балів (x2, x3, x5 «Сільпо Boost»).',
+        inputSchema: {'type': 'object', 'properties': {}},
+      ),
+      const McpTool(
+        name: spinWheelOfFortune,
+        description: 'Запуск обертання «Колеса Фортуни» для отримання знижки або балів.',
+        inputSchema: {'type': 'object', 'properties': {}},
+      ),
+      const McpTool(
+        name: getCart,
+        description: 'Отримання поточного стану кошика, вартості та розрахованої економії.',
+        inputSchema: {'type': 'object', 'properties': {}},
+      ),
+      const McpTool(
+        name: addToCart,
+        description: 'Додавання товару або списку товарів до кошика Сільпо.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'productId': {'type': 'string'},
+            'quantity': {'type': 'number', 'default': 1},
+          },
+          'required': ['productId'],
+        },
+      ),
+      const McpTool(
+        name: updateCartItem,
+        description: 'Оновлення кількості товару або параметрів автопоповнення в кошику.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'productId': {'type': 'string'},
+            'quantity': {'type': 'number'},
+          },
+          'required': ['productId', 'quantity'],
+        },
+      ),
+      const McpTool(
+        name: removeFromCart,
+        description: 'Видалення позиції з кошика покупця.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'productId': {'type': 'string'},
+          },
+          'required': ['productId'],
+        },
+      ),
+      const McpTool(
+        name: clearCart,
+        description: 'Повне очищення кошика покупок.',
+        inputSchema: {'type': 'object', 'properties': {}},
+      ),
+      const McpTool(
+        name: applyPromoCode,
+        description: 'Застосування промокоду або купону на знижку до поточного кошика.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'code': {'type': 'string'},
+          },
+          'required': ['code'],
+        },
+      ),
+      const McpTool(
+        name: addIngredientsToCart,
+        description: 'Пакетне перенесення всіх інгредієнтів рецепту до кошика в 1 дію.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'recipeId': {'type': 'string'},
+            'servings': {'type': 'integer', 'default': 4},
+          },
+          'required': ['recipeId'],
+        },
+      ),
+      const McpTool(
+        name: listStores,
+        description: 'Список супермаркетів Сільпо з концептуальними темами, генераторами та послугами.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'city': {'type': 'string'},
+            'hasGenerator': {'type': 'boolean'},
+          },
+        },
+      ),
+      const McpTool(
+        name: getStoreDetails,
+        description: 'Детальна інформація про магазин (години роботи, наявність пекарні, Feeltrd, адреса).',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'filialId': {'type': 'string'},
+          },
+          'required': ['filialId'],
+        },
+      ),
+      const McpTool(
+        name: findNearbyStores,
+        description: 'Пошук найближчих супермаркетів за географічними координатами (GPS).',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'latitude': {'type': 'number'},
+            'longitude': {'type': 'number'},
+          },
+          'required': ['latitude', 'longitude'],
+        },
+      ),
+      const McpTool(
+        name: getDeliverySlots,
+        description: 'Отримання доступних слотів експрес та планової доставки для адреси або магазину.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'filialId': {'type': 'string'},
+            'date': {'type': 'string'},
+          },
+        },
+      ),
+      const McpTool(
+        name: reserveDeliverySlot,
+        description: 'Бронювання обраного слоту доставки на час оформлення замовлення.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'slotId': {'type': 'string'},
+          },
+          'required': ['slotId'],
+        },
+      ),
+      const McpTool(
+        name: checkDeliveryAddress,
+        description: 'Перевірка входження адреси в зону експрес (Loko) або планової доставки Сільпо.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'address': {'type': 'string'},
+          },
+          'required': ['address'],
+        },
+      ),
+      const McpTool(
+        name: getVlasnyiRakhunok,
+        description: 'Баланс балобонусів, цифровий штрихкод та персональні умови програми лояльності.',
+        inputSchema: {'type': 'object', 'properties': {}},
+      ),
+      const McpTool(
+        name: getFiscalReceipts,
+        description: 'Історія фіскальних чеків з деталізацією покупок, знижок та нарахованих балів.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'limit': {'type': 'integer', 'default': 10},
+          },
+        },
+      ),
+      const McpTool(
+        name: getReceiptDetails,
+        description: 'Повна фіскальна інформація за конкретним номером чека.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'receiptId': {'type': 'string'},
+          },
+          'required': ['receiptId'],
+        },
+      ),
+      const McpTool(
+        name: getSpendingAnalytics,
+        description: 'Аналітика покупок за фіскальними чеками «Власний Рахунок»: категорії, економія, інфляція.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'period': {'type': 'string', 'enum': ['week', 'month', 'year', 'all']},
+          },
+        },
+      ),
+      const McpTool(
+        name: calculateInflationIndex,
+        description: 'Розрахунок персонального індексу продуктової інфляції на основі чеків покупця.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'periodMonths': {'type': 'integer', 'default': 6},
+          },
+        },
+      ),
+      const McpTool(
+        name: getCategoryBreakdown,
+        description: 'Розподіл витрат за категоріями у відсотках та гривнях.',
+        inputSchema: {'type': 'object', 'properties': {}},
       ),
       const McpTool(
         name: parseRecipe,
@@ -112,41 +391,50 @@ class SilpoMcpTools {
         },
       ),
       const McpTool(
-        name: addToCart,
-        description: 'Додавання товару або списку товарів до кошика Сільпо.',
+        name: buildMealPlan,
+        description: 'Генерація збалансованого тижневого меню з підбором товарів у наявності.',
         inputSchema: {
           'type': 'object',
           'properties': {
-            'productId': {'type': 'string'},
-            'quantity': {'type': 'number', 'default': 1},
+            'days': {'type': 'integer', 'default': 7},
+            'dietaryPreferences': {'type': 'array', 'items': {'type': 'string'}},
           },
-          'required': ['productId'],
         },
       ),
       const McpTool(
-        name: getCart,
-        description: 'Отримання поточного стану кошика, вартості та розрахованої економії.',
+        name: suggestPrivateLabels,
+        description: 'Підбір товарів власної марки («Премія», «Повна Чаша») для оптимізації вартості.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'productIds': {'type': 'array', 'items': {'type': 'string'}},
+          },
+        },
+      ),
+      const McpTool(
+        name: planWeeklyBasket,
+        description: 'Складання щотижневого базового кошика продуктів (молоко, хліб, овочі) за вигідними цінами.',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'familySize': {'type': 'integer', 'default': 3},
+          },
+        },
+      ),
+      const McpTool(
+        name: calculateBasketNutrition,
+        description: 'Підрахунок орієнтовної калорійності та БЖВ продуктів у поточному кошику.',
         inputSchema: {'type': 'object', 'properties': {}},
       ),
       const McpTool(
-        name: getDeliverySlots,
-        description: 'Отримання доступних слотів експрес та планової доставки для адреси або магазину.',
+        name: optimizeBasketBudget,
+        description: 'Оптимізація вмісту кошика під заданий ліміт бюджету (заміна на акційні або власні марки).',
         inputSchema: {
           'type': 'object',
           'properties': {
-            'filialId': {'type': 'string'},
-            'date': {'type': 'string'},
+            'targetBudget': {'type': 'number'},
           },
-        },
-      ),
-      const McpTool(
-        name: getSpendingAnalytics,
-        description: 'Аналітика покупок за фіскальними чеками «Власний Рахунок»: категорії, економія, інфляція.',
-        inputSchema: {
-          'type': 'object',
-          'properties': {
-            'period': {'type': 'string', 'enum': ['week', 'month', 'year', 'all']},
-          },
+          'required': ['targetBudget'],
         },
       ),
     ];

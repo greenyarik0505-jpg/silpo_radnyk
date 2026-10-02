@@ -8,6 +8,7 @@ import 'presentation/viewmodels/cart_viewmodel.dart';
 import 'presentation/viewmodels/analytics_viewmodel.dart';
 import 'presentation/viewmodels/store_viewmodel.dart';
 import 'presentation/viewmodels/mcp_viewmodel.dart';
+import 'presentation/viewmodels/boost_viewmodel.dart';
 import 'presentation/screens/main_navigation_screen.dart';
 
 void main() {
@@ -23,6 +24,7 @@ void main() {
   final analyticsViewModel = AnalyticsViewModel(repository: repository);
   final storeViewModel = StoreViewModel(repository: repository);
   final mcpViewModel = McpViewModel(repository: repository);
+  final boostViewModel = BoostViewModel(repository: repository);
 
   runApp(
     SilpoAssistantApp(
@@ -32,6 +34,7 @@ void main() {
       analyticsViewModel: analyticsViewModel,
       storeViewModel: storeViewModel,
       mcpViewModel: mcpViewModel,
+      boostViewModel: boostViewModel,
     ),
   );
 }
@@ -43,6 +46,7 @@ class SilpoAssistantApp extends StatelessWidget {
   final AnalyticsViewModel analyticsViewModel;
   final StoreViewModel storeViewModel;
   final McpViewModel mcpViewModel;
+  final BoostViewModel boostViewModel;
 
   const SilpoAssistantApp({
     super.key,
@@ -52,6 +56,7 @@ class SilpoAssistantApp extends StatelessWidget {
     required this.analyticsViewModel,
     required this.storeViewModel,
     required this.mcpViewModel,
+    required this.boostViewModel,
   });
 
   @override
@@ -69,6 +74,7 @@ class SilpoAssistantApp extends StatelessWidget {
         analyticsViewModel: analyticsViewModel,
         storeViewModel: storeViewModel,
         mcpViewModel: mcpViewModel,
+        boostViewModel: boostViewModel,
       ),
     );
   }

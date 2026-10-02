@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../viewmodels/analytics_viewmodel.dart';
+import '../viewmodels/boost_viewmodel.dart';
 import '../widgets/category_spending_chart.dart';
 
 class AnalyticsScreen extends StatelessWidget {
   final AnalyticsViewModel analyticsViewModel;
+  final BoostViewModel? boostViewModel;
 
   const AnalyticsScreen({
     super.key,
     required this.analyticsViewModel,
+    this.boostViewModel,
   });
 
   @override
@@ -41,6 +44,12 @@ class AnalyticsScreen extends StatelessWidget {
                 _buildLoyaltyCard(context),
 
                 const SizedBox(height: 16),
+
+                // Silpo Boost Accelerators Section
+                if (boostViewModel != null) ...[
+                  _buildBoostSection(context, isDark),
+                  const SizedBox(height: 16),
+                ],
 
                 // KPI Metrics row
                 Row(
@@ -165,11 +174,29 @@ class AnalyticsScreen extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // Fiscal Receipts History Section
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                  child: Text(
-                    AppStrings.fiscalReceipts,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        AppStrings.fiscalReceipts,
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      TextButton.icon(
+                        icon: const Icon(Icons.qr_code_scanner, size: 16, color: AppColors.silpoOrange),
+                        label: const Text('Скан чека', style: TextStyle(fontSize: 12, color: AppColors.silpoOrange)),
+                        onPressed: () {
+                          analyticsViewModel.importReceiptFromQr('silpo_qr_check_${DateTime.now().millisecondsSinceEpoch}');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Фіскальний чек успішно відскановано та додано до історії!'),
+                              backgroundColor: AppColors.successGreen,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -240,19 +267,22 @@ class AnalyticsScreen extends StatelessWidget {
   }
 
   Widget _buildLoyaltyCard(BuildContext context) {
+    final isBright = boostViewModel?.isBrightnessMaximized ?? false;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2C3E50), Color(0xFF1E293B)],
+        gradient: LinearGradient(
+          colors: isBright
+              ? const [Color(0xFF1E3A8A), Color(0xFF2563EB)]
+              : const [Color(0xFF2C3E50), Color(0xFF1E293B)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 10,
+            color: isBright ? Colors.blue.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.2),
+            blurRadius: isBright ? 16 : 10,
             offset: const Offset(0, 4),
           ),
         ],
@@ -273,20 +303,44 @@ class AnalyticsScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.silpoOrange,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'Сільпо VIP',
-                  style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                ),
+              Row(
+                children: [
+                  if (boostViewModel != null)
+                    IconButton(
+                      icon: Icon(
+                        isBright ? Icons.brightness_high : Icons.brightness_medium,
+                        color: isBright ? AppColors.silpoYellow : Colors.white70,
+                        size: 20,
+                      ),
+                      tooltip: 'Максимальна яскравість для каси',
+                      onPressed: () {
+                        boostViewModel!.toggleBrightness();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(isBright
+                                ? 'Яскравість повернено до звичайної'
+                                : 'Яскравість екрана збільшено для швидкого сканування на касі!'),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                    ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.silpoOrange,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'Сільпо VIP',
+                      style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -309,21 +363,150 @@ class AnalyticsScreen extends StatelessWidget {
                     '= ${(analyticsViewModel.loyaltyBalance / 100).toStringAsFixed(2)} ₴ знижки на касі',
                     style: const TextStyle(color: Colors.white60, fontSize: 11),
                   ),
+                  if (boostViewModel != null && boostViewModel!.activeCouponsCount > 0) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.silpoYellow.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '⚡ ${boostViewModel!.activeCouponsCount} активних бустів',
+                        style: const TextStyle(color: AppColors.silpoYellow, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
                 ],
               ),
               // Simulated QR code
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.qr_code, size: 48, color: Colors.black),
+              Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.qr_code, size: 48, color: Colors.black),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text('4820-9912-38', style: TextStyle(color: Colors.white54, fontSize: 9, fontFamily: 'monospace')),
+                ],
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBoostSection(BuildContext context, bool isDark) {
+    return ListenableBuilder(
+      listenable: boostViewModel!,
+      builder: (context, _) {
+        final coupons = boostViewModel!.coupons;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.bolt, color: AppColors.silpoYellow, size: 20),
+                    SizedBox(width: 6),
+                    Text(
+                      '«Сільпо Boost» (Балочковий акселератор)',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                  ],
+                ),
+                Text(
+                  '${boostViewModel!.activeCouponsCount}/${coupons.length} активні',
+                  style: const TextStyle(fontSize: 12, color: AppColors.silpoOrange, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 130,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: coupons.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final c = coupons[index];
+                  return Container(
+                    width: 210,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkCard : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: c.isActivated ? AppColors.silpoOrange : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                        width: c.isActivated ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: c.isActivated ? AppColors.silpoOrange : Colors.grey.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                c.badgeText,
+                                style: TextStyle(
+                                  color: c.isActivated ? Colors.white : Colors.grey,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Icon(c.icon, size: 18, color: c.isActivated ? AppColors.silpoOrange : Colors.grey),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Expanded(
+                          child: Text(
+                            c.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 28,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: c.isActivated ? AppColors.successGreen : AppColors.silpoOrange,
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            onPressed: () => boostViewModel!.toggleCoupon(c.id),
+                            child: Text(
+                              c.isActivated ? '✓ Активовано' : 'Активувати буст',
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

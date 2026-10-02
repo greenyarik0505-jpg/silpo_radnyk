@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../viewmodels/store_viewmodel.dart';
+import '../viewmodels/cart_viewmodel.dart';
 import 'mcp_console_screen.dart';
+import 'vilnokasa_screen.dart';
 import '../viewmodels/mcp_viewmodel.dart';
 
 class StoresScreen extends StatelessWidget {
   final StoreViewModel storeViewModel;
   final McpViewModel mcpViewModel;
+  final CartViewModel? cartViewModel;
 
   const StoresScreen({
     super.key,
     required this.storeViewModel,
     required this.mcpViewModel,
+    this.cartViewModel,
   });
 
   @override
@@ -27,6 +31,19 @@ class StoresScreen extends StatelessWidget {
           appBar: AppBar(
             title: const Text(AppStrings.storesTitle),
             actions: [
+              if (cartViewModel != null)
+                IconButton(
+                  icon: const Icon(Icons.qr_code_scanner, color: AppColors.silpoOrange),
+                  tooltip: 'Вільнокаса (скан у магазині)',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => VilnokasaScreen(cartViewModel: cartViewModel!),
+                      ),
+                    );
+                  },
+                ),
               IconButton(
                 icon: const Icon(Icons.terminal, color: AppColors.silpoOrange),
                 tooltip: 'Silpo MCP Console',

@@ -1,12 +1,26 @@
+import 'package:flutter/material.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/recipe.dart';
 import '../../domain/entities/promo.dart';
 import '../../domain/entities/receipt.dart';
 import '../../domain/entities/store.dart';
 import '../../domain/entities/delivery_slot.dart';
+import '../../domain/entities/silpo_boost.dart';
 import 'silpo_datasource.dart';
 
 class SilpoMockDataSource implements SilpoDataSource {
+  static final Map<String, String> _barcodeToProductId = {
+    '482000000001': 'p_borsch_sour_cream',
+    '482000000002': 'p_coffee_lavazza',
+    '482000000003': 'p_cheese_gouda',
+    '482000000004': 'p_salmon_steak',
+    '482000000005': 'p_borsch_pampushki',
+    '482000000006': 'p_chocolate_dark',
+    '482000000007': 'p_milk_galychyna',
+    '482000000008': 'p_pasta_barilla',
+    '482000000009': 'p_eggs_yasensvit',
+    '482000000010': 'p_avocado_hass',
+  };
   static final List<Product> _allProducts = [
     const Product(
       id: 'p_borsch_beef',
@@ -188,6 +202,111 @@ class SilpoMockDataSource implements SilpoDataSource {
       rating: 4.8,
       bonusPoints: 35,
       weightGrams: 1000,
+    ),
+    const Product(
+      id: 'p_chicken_fillet',
+      title: 'Філе куряче охолоджене «Сільпо Свіжачок»',
+      category: 'М’ясо',
+      regularPrice: 179.00,
+      promoPrice: 154.90,
+      unit: 'кг',
+      brand: 'Сільпо Свіжачок',
+      isCinotyzhik: true,
+      rating: 4.9,
+      bonusPoints: 18,
+      weightGrams: 1000,
+    ),
+    const Product(
+      id: 'p_chocolate_dark',
+      title: 'Шоколад чорний 70% какао «Премія» 100г',
+      category: 'Кондитерські вироби',
+      regularPrice: 48.00,
+      promoPrice: 38.90,
+      unit: 'шт',
+      brand: 'Премія',
+      isPrivateLabel: true,
+      isCinotyzhik: true,
+      rating: 4.8,
+      bonusPoints: 5,
+      weightGrams: 100,
+    ),
+    const Product(
+      id: 'p_milk_galychyna',
+      title: 'Молоко пастеризоване 2.5% «Галичина» 900г',
+      category: 'Молочні продукти',
+      regularPrice: 44.50,
+      promoPrice: 36.90,
+      unit: 'шт',
+      brand: 'Галичина',
+      isCinotyzhik: true,
+      rating: 4.9,
+      bonusPoints: 4,
+      weightGrams: 900,
+    ),
+    const Product(
+      id: 'p_pasta_barilla',
+      title: 'Макарони Barilla Spaghetti n.5 500г',
+      category: 'Бакалія',
+      regularPrice: 79.90,
+      promoPrice: 59.90,
+      unit: 'шт',
+      brand: 'Barilla',
+      isCinotyzhik: true,
+      rating: 5.0,
+      bonusPoints: 8,
+      weightGrams: 500,
+    ),
+    const Product(
+      id: 'p_pasta_premia',
+      title: 'Спагеті з твердих сортів «Премія» 400г',
+      category: 'Бакалія',
+      regularPrice: 34.90,
+      promoPrice: null,
+      unit: 'шт',
+      brand: 'Премія',
+      isPrivateLabel: true,
+      rating: 4.6,
+      bonusPoints: 3,
+      weightGrams: 400,
+    ),
+    const Product(
+      id: 'p_eggs_yasensvit',
+      title: 'Яйця курячі добірні С0 «Ясенсвіт» 10 шт',
+      category: 'Яйця',
+      regularPrice: 68.00,
+      promoPrice: 56.90,
+      unit: 'уп',
+      brand: 'Ясенсвіт',
+      isCinotyzhik: true,
+      rating: 4.9,
+      bonusPoints: 6,
+      weightGrams: 650,
+    ),
+    const Product(
+      id: 'p_avocado_hass',
+      title: 'Авокадо Хасс стигле Ready to Eat (2 шт)',
+      category: 'Овочі та фрукти',
+      regularPrice: 129.00,
+      promoPrice: 99.00,
+      unit: 'уп',
+      brand: 'Власний імпорт Сільпо',
+      isCinotyzhik: true,
+      rating: 4.9,
+      bonusPoints: 12,
+      weightGrams: 300,
+    ),
+    const Product(
+      id: 'p_cottage_cheese',
+      title: 'Сир кисломолочний 9% «Премія» 350г',
+      category: 'Молочні продукти',
+      regularPrice: 64.00,
+      promoPrice: 52.90,
+      unit: 'шт',
+      brand: 'Премія',
+      isPrivateLabel: true,
+      rating: 4.8,
+      bonusPoints: 6,
+      weightGrams: 350,
     ),
   ];
 
@@ -399,6 +518,82 @@ class SilpoMockDataSource implements SilpoDataSource {
           'Стейк лосося обсмажте на гриль-пательні по 3-4 хвилини з кожного боку або запечіть при 180°C.',
         ],
       ),
+      Recipe(
+        id: 'recipe_pasta',
+        title: 'Італійська паста Spaghetti al Pomodoro',
+        description: 'Класична середземноморська паста з томатним соусом, базиліком та оливковою олією.',
+        cookTimeMinutes: 15,
+        difficulty: 'Легко',
+        servings: 2,
+        dietaryTags: ['Вегетаріанське', 'Швидко', 'Італійська кухня'],
+        ingredients: [
+          RecipeIngredient(
+            name: 'Паста Спагеті',
+            amount: 1,
+            unit: 'шт',
+            matchedProduct: _allProducts.firstWhere((p) => p.id == 'p_pasta_barilla'),
+            substituteProduct: _allProducts.firstWhere((p) => p.id == 'p_pasta_premia'),
+          ),
+          RecipeIngredient(
+            name: 'Томатна паста 25%',
+            amount: 1,
+            unit: 'шт',
+            matchedProduct: _allProducts.firstWhere((p) => p.id == 'p_borsch_paste'),
+          ),
+          RecipeIngredient(
+            name: 'Олія оливкова Extra Virgin',
+            amount: 1,
+            unit: 'шт',
+            matchedProduct: _allProducts.firstWhere((p) => p.id == 'p_olive_oil'),
+          ),
+          RecipeIngredient(
+            name: 'Сир Гауда тертий',
+            amount: 0.2,
+            unit: 'кг',
+            matchedProduct: _allProducts.firstWhere((p) => p.id == 'p_cheese_gouda'),
+          ),
+        ],
+        steps: [
+          'Відваріть спагеті у підсоленій киплячій воді до стану al dente (близько 8 хвилин).',
+          'На оливковій олії прогрійте томатну пасту з додаванням 50 мл води від пасти.',
+          'З’єднайте пасту з соусом, посипте тертим сиром та свіжомеленим перцем.',
+        ],
+      ),
+      Recipe(
+        id: 'recipe_syrnyky',
+        title: 'Ніжні домашні сирники зі сметаною',
+        description: 'Ідеальний сніданок з ніжного кисломолочного сиру з хрусткою золотистою скоринкою.',
+        cookTimeMinutes: 20,
+        difficulty: 'Легко',
+        servings: 3,
+        dietaryTags: ['Сніданок', 'Вегетаріанське', 'Традиційне'],
+        ingredients: [
+          RecipeIngredient(
+            name: 'Сир кисломолочний 9%',
+            amount: 1,
+            unit: 'шт',
+            matchedProduct: _allProducts.firstWhere((p) => p.id == 'p_cottage_cheese'),
+          ),
+          RecipeIngredient(
+            name: 'Яйця курячі С0',
+            amount: 1,
+            unit: 'уп',
+            matchedProduct: _allProducts.firstWhere((p) => p.id == 'p_eggs_yasensvit'),
+          ),
+          RecipeIngredient(
+            name: 'Сметана 20% «Премія»',
+            amount: 1,
+            unit: 'шт',
+            matchedProduct: _allProducts.firstWhere((p) => p.id == 'p_borsch_sour_cream'),
+          ),
+        ],
+        steps: [
+          'Перетріть сир з яйцем та дрібкою солі до однорідності.',
+          'Сформуйте акуратні сирники та обкачайте у невеликій кількості борошна.',
+          'Обсмажте на середньому вогні по 3-4 хвилини з кожного боку до золотавої скоринки.',
+          'Подавайте теплими з густою сметаною «Премія».',
+        ],
+      ),
     ];
   }
 
@@ -407,16 +602,22 @@ class SilpoMockDataSource implements SilpoDataSource {
     final lower = text.toLowerCase();
     final recipes = await getPopularRecipes();
 
+    Recipe matched;
     if (lower.contains('борщ') || lower.contains('буряк')) {
-      return recipes.firstWhere((r) => r.id == 'recipe_borsch');
+      matched = recipes.firstWhere((r) => r.id == 'recipe_borsch');
     } else if (lower.contains('тірамісу') || lower.contains('десерт') || lower.contains('савоярді')) {
-      return recipes.firstWhere((r) => r.id == 'recipe_tiramisu');
+      matched = recipes.firstWhere((r) => r.id == 'recipe_tiramisu');
     } else if (lower.contains('кето') || lower.contains('лосос') || lower.contains('сьомг')) {
-      return recipes.firstWhere((r) => r.id == 'recipe_keto_salmon');
+      matched = recipes.firstWhere((r) => r.id == 'recipe_keto_salmon');
+    } else if (lower.contains('паст') || lower.contains('спагет') || lower.contains('макарон')) {
+      matched = recipes.firstWhere((r) => r.id == 'recipe_pasta');
+    } else if (lower.contains('сирник') || lower.contains('сніданок')) {
+      matched = recipes.firstWhere((r) => r.id == 'recipe_syrnyky');
+    } else {
+      matched = recipes.first;
     }
 
-    // Default parsed fallback
-    return recipes.first;
+    return matched.scaleServings(servings);
   }
 
   @override
@@ -616,7 +817,135 @@ class SilpoMockDataSource implements SilpoDataSource {
   }
 
   @override
+  Future<Product?> getProductByBarcode(String barcode) async {
+    final clean = barcode.trim();
+    final productId = _barcodeToProductId[clean];
+    if (productId != null) {
+      return getProductDetails(productId);
+    }
+    return getProductDetails(clean);
+  }
+
+  @override
   Future<int> getVlasnyiRakhunokBalance() async {
     return 1450; // 1450 балобонусів = 14.50 грн знижки
+  }
+
+  static final List<SilpoBoostCoupon> _boostCoupons = [
+    SilpoBoostCoupon(
+      id: 'boost_coffee_x3',
+      title: 'Буст x3 на каву Feeltrd та зернову каву',
+      category: 'Кава та чай',
+      multiplier: 3.0,
+      badgeText: 'x3 БАЛОЧОК',
+      description: 'Потрійні бали «Власний Рахунок» на всю каву в зернах та гарячі напої Feeltrd.',
+      isActivated: true,
+      expiresAt: DateTime.now().add(const Duration(days: 6)),
+      icon: Icons.coffee,
+    ),
+    SilpoBoostCoupon(
+      id: 'boost_bakery_x5',
+      title: 'Буст x5 на духмяну випічку Власної пекарні',
+      category: 'Власна пекарня',
+      multiplier: 5.0,
+      badgeText: 'x5 БАЛОЧОК',
+      description: 'П’ятикратні бали на круасани, багети, хліб та авторські пироги.',
+      isActivated: false,
+      expiresAt: DateTime.now().add(const Duration(days: 5)),
+      icon: Icons.bakery_dining,
+    ),
+    SilpoBoostCoupon(
+      id: 'boost_meat_x2',
+      title: 'Буст x2 на охолоджене м’ясо «Свіжачок»',
+      category: 'М’ясо',
+      multiplier: 2.0,
+      badgeText: 'x2 БАЛОЧОК',
+      description: 'Подвійне нарахування балів при купівлі свіжої телятини, яловичини та птиці.',
+      isActivated: true,
+      expiresAt: DateTime.now().add(const Duration(days: 4)),
+      icon: Icons.kebab_dining,
+    ),
+    SilpoBoostCoupon(
+      id: 'boost_cheese_x3',
+      title: 'Буст x3 на крафтові європейські сири',
+      category: 'Сири та масло',
+      multiplier: 3.0,
+      badgeText: 'x3 БАЛОЧОК',
+      description: 'Потрійні бали на пармезан, гауду, брі та сири власної сироварні.',
+      isActivated: false,
+      expiresAt: DateTime.now().add(const Duration(days: 7)),
+      icon: Icons.lunch_dining,
+    ),
+    SilpoBoostCoupon(
+      id: 'boost_receipt_1000',
+      title: '+1000 балочок на чек від 500 грн',
+      category: 'Усі товари',
+      extraBonusPoints: 1000,
+      badgeText: '+1000 БАЛІВ',
+      description: 'Одноразовий супер-буст на 1000 балобонусів при загальній сумі чека від 500 ₴.',
+      isActivated: false,
+      expiresAt: DateTime.now().add(const Duration(days: 3)),
+      icon: Icons.stars,
+    ),
+  ];
+
+  @override
+  Future<List<SilpoBoostCoupon>> getBoostCoupons() async {
+    return List.unmodifiable(_boostCoupons);
+  }
+
+  @override
+  Future<bool> activateBoostCoupon(String couponId) async {
+    final idx = _boostCoupons.indexWhere((c) => c.id == couponId);
+    if (idx != -1) {
+      final current = _boostCoupons[idx];
+      _boostCoupons[idx] = current.copyWith(isActivated: !current.isActivated);
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  Future<FiscalReceipt?> importFiscalReceiptByQr(String qrContent) async {
+    final receipt = FiscalReceipt(
+      id: 'rec_qr_${DateTime.now().millisecondsSinceEpoch}',
+      fiscalNumber: 'ФЧ-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}',
+      dateTime: DateTime.now(),
+      storeAddress: 'Київ, ТРЦ Gulliver (Вільнокаса QR)',
+      totalAmount: 248.50,
+      discountAmount: 42.00,
+      bonusPointsEarned: 48,
+      paymentMethod: 'Власний Рахунок QR',
+      items: const [
+        ReceiptItem(
+          name: 'Сметана 20% «Премія» 350г',
+          quantity: 1,
+          unit: 'шт',
+          price: 39.90,
+          total: 39.90,
+          discountAmount: 9.00,
+          category: 'Молочні продукти',
+        ),
+        ReceiptItem(
+          name: 'Шоколад чорний 70% «Премія» 100г',
+          quantity: 2,
+          unit: 'шт',
+          price: 39.90,
+          total: 79.80,
+          discountAmount: 16.20,
+          category: 'Кондитерські вироби',
+        ),
+        ReceiptItem(
+          name: 'Пампушки з часником',
+          quantity: 1,
+          unit: 'уп',
+          price: 34.00,
+          total: 34.00,
+          discountAmount: 0.0,
+          category: 'Власна пекарня',
+        ),
+      ],
+    );
+    return receipt;
   }
 }
