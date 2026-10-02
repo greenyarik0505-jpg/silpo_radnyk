@@ -245,18 +245,17 @@ class SilpoMcpTools {
       ),
       const McpTool(
         name: listStores,
-        description: 'Список супермаркетів Сільпо з концептуальними темами, генераторами та послугами.',
+        description: 'Список супермаркетів Сільпо з концептуальними темами та сервісами.',
         inputSchema: {
           'type': 'object',
           'properties': {
             'city': {'type': 'string'},
-            'hasGenerator': {'type': 'boolean'},
           },
         },
       ),
       const McpTool(
         name: getStoreDetails,
-        description: 'Детальна інформація про магазин (години роботи, наявність пекарні, Feeltrd, адреса).',
+        description: 'Детальна інформація про магазин (години роботи, сервіси, адреса, телефон).',
         inputSchema: {
           'type': 'object',
           'properties': {

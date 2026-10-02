@@ -8,7 +8,7 @@ class SilpoStore {
   final double latitude;
   final double longitude;
   final String? conceptTheme; // e.g. 'Вінтажний цирк', 'Мавка', 'Стимпанк', 'Музичний'
-  final List<String> amenities; // 'Пекарня', 'Власна рибокоптильня', 'Піцерія', 'Кав’ярня Feeltrd'
+  final List<String> amenities; // 'Власна рибокоптильня', 'Піцерія', 'Суші-бар', 'Власна сироварня'
   final bool hasGenerator;
   final bool isFavorite;
   final double distanceKm;
@@ -26,17 +26,17 @@ class SilpoStore {
     required this.name,
     required this.address,
     required this.city,
-    required this.workingHours,
+    this.workingHours = '08:00 - 23:00',
     required this.latitude,
     required this.longitude,
     this.conceptTheme,
     this.amenities = const [],
-    this.hasGenerator = true,
+    this.hasGenerator = false,
     this.isFavorite = false,
     this.distanceKm = 1.2,
     this.imageUrl,
-    this.hasBakery = true,
-    this.hasFeeltrd = true,
+    this.hasBakery = false,
+    this.hasFeeltrd = false,
     this.hasEvCharging = false,
     this.hasPharmacy = false,
     this.isOpen = true,
@@ -86,4 +86,48 @@ class SilpoStore {
       phone: phone ?? this.phone,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'filialId': filialId,
+    'name': name,
+    'address': address,
+    'city': city,
+    'workingHours': workingHours,
+    'latitude': latitude,
+    'longitude': longitude,
+    'conceptTheme': conceptTheme,
+    'amenities': amenities,
+    'hasGenerator': hasGenerator,
+    'isFavorite': isFavorite,
+    'distanceKm': distanceKm,
+    'imageUrl': imageUrl,
+    'hasBakery': hasBakery,
+    'hasFeeltrd': hasFeeltrd,
+    'hasEvCharging': hasEvCharging,
+    'hasPharmacy': hasPharmacy,
+    'isOpen': isOpen,
+    'phone': phone,
+  };
+
+  factory SilpoStore.fromJson(Map<String, dynamic> json) => SilpoStore(
+    filialId: json['filialId'] as String? ?? '',
+    name: json['name'] as String? ?? '',
+    address: json['address'] as String? ?? '',
+    city: json['city'] as String? ?? '',
+    workingHours: json['workingHours'] as String? ?? '08:00 - 23:00',
+    latitude: (json['latitude'] as num?)?.toDouble() ?? 50.45,
+    longitude: (json['longitude'] as num?)?.toDouble() ?? 30.52,
+    conceptTheme: json['conceptTheme'] as String?,
+    amenities: (json['amenities'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+    hasGenerator: json['hasGenerator'] as bool? ?? false,
+    isFavorite: json['isFavorite'] as bool? ?? false,
+    distanceKm: (json['distanceKm'] as num?)?.toDouble() ?? 1.2,
+    imageUrl: json['imageUrl'] as String?,
+    hasBakery: json['hasBakery'] as bool? ?? false,
+    hasFeeltrd: json['hasFeeltrd'] as bool? ?? false,
+    hasEvCharging: json['hasEvCharging'] as bool? ?? false,
+    hasPharmacy: json['hasPharmacy'] as bool? ?? false,
+    isOpen: json['isOpen'] as bool? ?? true,
+    phone: json['phone'] as String?,
+  );
 }

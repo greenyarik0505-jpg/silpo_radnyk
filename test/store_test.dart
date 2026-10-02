@@ -48,5 +48,19 @@ void main() {
       final updated = storeViewModel.stores.firstWhere((s) => s.filialId == store.filialId);
       expect(updated.isFavorite, !initialFavorite);
     });
+
+    test('Loaded stores do not contain obsolete service chips in amenities', () async {
+      await storeViewModel.loadStores();
+      for (final s in storeViewModel.stores) {
+        for (final a in s.amenities) {
+          final lower = a.toLowerCase();
+          expect(lower.contains('генератор'), isFalse, reason: 'Found generator in ${s.name}: $a');
+          expect(lower.contains('пекарн'), isFalse, reason: 'Found bakery in ${s.name}: $a');
+          expect(lower.contains('feeltrd'), isFalse, reason: 'Found Feeltrd in ${s.name}: $a');
+          expect(lower.contains('зарядка') || lower.contains('ev'), isFalse, reason: 'Found EV in ${s.name}: $a');
+          expect(lower.contains('аптека'), isFalse, reason: 'Found pharmacy in ${s.name}: $a');
+        }
+      }
+    });
   });
 }

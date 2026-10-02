@@ -72,6 +72,8 @@ class Recipe {
     required this.steps,
   });
 
+  List<String> get instructions => steps;
+
   double get totalEstimatedCost {
     return ingredients.fold(0.0, (sum, item) {
       return sum + item.cost;

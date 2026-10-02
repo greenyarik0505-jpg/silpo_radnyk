@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../domain/entities/product.dart';
+import '../../domain/entities/receipt.dart';
 import '../../data/repositories/silpo_repository.dart';
 import '../viewmodels/cart_viewmodel.dart';
 import '../widgets/silpo_badge.dart';
@@ -438,20 +439,107 @@ class _VilnokasaScreenState extends State<VilnokasaScreen> with SingleTickerProv
                           ],
                         ),
                       ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.silpoOrange,
-                          foregroundColor: Colors.white,
+                      const SizedBox(width: 8),
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.silpoOrange,
+                          side: const BorderSide(color: AppColors.silpoOrange),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                         ),
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('До кошика'),
+                        child: const Text('Кошик'),
+                      ),
+                      const SizedBox(width: 6),
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.silpoOrange,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        ),
+                        onPressed: widget.cartViewModel.isEmpty
+                            ? null
+                            : () {
+                                final receipt = widget.cartViewModel.placeOrder(
+                                  storeAddress: 'Вільнокаса • Сільпо Gulliver',
+                                  deliveryType: 'Вільнокаса (самообслуговування)',
+                                  paymentMethod: 'SilpoPay • Власний Рахунок',
+                                );
+                                _showVilnokasaReceiptDialog(context, receipt);
+                              },
+                        child: const Text('Оплатити'),
                       ),
                     ],
                   ),
                 ),
               );
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showVilnokasaReceiptDialog(BuildContext context, FiscalReceipt receipt) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.check_circle, color: AppColors.successGreen, size: 28),
+            SizedBox(width: 10),
+            Text('Оплата успішна!'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Покажіть цей QR-код на сканері турнікета для виходу з супермаркету:',
+              style: TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 14),
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.black12),
+                ),
+                child: Column(
+                  children: [
+                    const Icon(Icons.qr_code_2, size: 130, color: Colors.black87),
+                    const SizedBox(height: 6),
+                    Text(
+                      receipt.fiscalNumber,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text('Сума до сплати: ${receipt.totalAmount.toStringAsFixed(2)} ₴', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            Text('Нараховано бонусів: +${receipt.bonusPointsEarned} балів', style: const TextStyle(color: AppColors.successGreen, fontWeight: FontWeight.bold, fontSize: 13)),
+          ],
+        ),
+        actions: [
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.silpoOrange),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.pop(context);
+            },
+            child: const Text('Завершити покупки'),
           ),
         ],
       ),

@@ -3,7 +3,7 @@ import '../../core/constants/app_colors.dart';
 
 /// Reusable Silpo store feature pill badge and filter chip.
 /// Designed to exactly match the dark-navy pill style from the official Silpo app:
-/// ⚡ З генератором | 🥐 Власна пекарня | ☕ Кав'ярня Feeltrd
+/// 🍕 Власна піцерія | 🍣 Суші-бар | 🧀 Власна сироварня | 🍷 Винний бутік
 class SilpoFeatureChip extends StatelessWidget {
   final String emoji;
   final String label;

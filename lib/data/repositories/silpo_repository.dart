@@ -99,7 +99,14 @@ class SilpoRepository {
     return _dataSource.getDeliverySlots(filialId: branch);
   }
 
-  List<dynamic> getInflationMetrics() {
-    return const [];
+  List<InflationPoint> getInflationMetrics() {
+    return const [
+      InflationPoint(month: 'Січень', personalInflationRate: 2.1, silpoAverageBasket: 495.0),
+      InflationPoint(month: 'Лютий', personalInflationRate: 1.8, silpoAverageBasket: 508.5),
+      InflationPoint(month: 'Березень', personalInflationRate: 2.4, silpoAverageBasket: 520.0),
+      InflationPoint(month: 'Квітень', personalInflationRate: 1.5, silpoAverageBasket: 515.2),
+      InflationPoint(month: 'Травень', personalInflationRate: 0.9, silpoAverageBasket: 524.0),
+      InflationPoint(month: 'Червень', personalInflationRate: 1.2, silpoAverageBasket: 532.5),
+    ];
   }
 }

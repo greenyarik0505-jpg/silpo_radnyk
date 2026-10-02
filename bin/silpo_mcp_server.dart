@@ -125,7 +125,7 @@ class SilpoMcpStdioServer {
               {
                 'uri': 'silpo://stores/kyiv',
                 'name': 'Флагманські супермаркети Сільпо (Київ)',
-                'description': 'Тематичні концептуальні магазини з генераторами',
+                'description': 'Тематичні концептуальні магазини з авторським дизайном та сервісами',
                 'mimeType': 'application/json',
               },
             ],
@@ -304,7 +304,7 @@ class SilpoMcpStdioServer {
                         'name': s.name,
                         'address': s.address,
                         'city': s.city,
-                        'hasGenerator': s.hasGenerator,
+                        'amenities': s.amenities,
                         'conceptTheme': s.conceptTheme,
                       }).toList(),
                 }),

@@ -19,13 +19,20 @@ void main() {
       expect(stores.isNotEmpty, isTrue);
 
       final gulliver = stores.firstWhere((s) => s.name.contains('Gulliver'));
-      expect(gulliver.hasGenerator, isTrue);
-      expect(gulliver.hasBakery, isTrue);
-      expect(gulliver.hasFeeltrd, isTrue);
       expect(gulliver.imageUrl, isNotNull);
-      expect(gulliver.amenities.any((a) => a.contains('генератором')), isTrue);
-      expect(gulliver.amenities.any((a) => a.contains('пекарня')), isTrue);
-      expect(gulliver.amenities.any((a) => a.contains('Feeltrd')), isTrue);
+      expect(gulliver.conceptTheme, isNotNull);
+      expect(gulliver.amenities.isNotEmpty, isTrue);
+      expect(gulliver.amenities.any((a) => a.toLowerCase().contains('піцерія') || a.toLowerCase().contains('суші')), isTrue);
+      for (final s in stores) {
+        for (final a in s.amenities) {
+          final lower = a.toLowerCase();
+          expect(lower.contains('генератор'), isFalse);
+          expect(lower.contains('пекарн'), isFalse);
+          expect(lower.contains('feeltrd'), isFalse);
+          expect(lower.contains('зарядка') || lower.contains('ev'), isFalse);
+          expect(lower.contains('аптека'), isFalse);
+        }
+      }
     });
 
     test('setActiveBranch updates active branch id in remote datasource', () {
@@ -72,7 +79,7 @@ void main() {
     });
   });
 
-  group('StoreViewModel Expanded Amenities Filtering Tests', () {
+  group('StoreViewModel Store Selection and Navigation Tests', () {
     late StoreViewModel vm;
 
     setUp(() async {
@@ -80,28 +87,21 @@ void main() {
       await vm.loadStores();
     });
 
-    test('EV Charging and Pharmacy filter toggles work properly', () {
-      expect(vm.onlyWithEvCharging, isFalse);
-      vm.toggleEvFilter();
-      expect(vm.onlyWithEvCharging, isTrue);
+    test('Store list loads cleanly without obsolete service filters', () {
+      expect(vm.stores.isNotEmpty, isTrue);
+      expect(vm.selectedStore, isNotNull);
+      expect(vm.cities.contains('Всі міста'), isTrue);
+    });
+
+    test('City filtering and search work in harmony', () {
+      vm.filterCity('Київ');
+      expect(vm.selectedCity, 'Київ');
       for (final s in vm.stores) {
-        expect(
-          s.hasEvCharging || s.amenities.any((a) => a.contains('EV') || a.contains('зарядка')),
-          isTrue,
-        );
+        expect(s.city, 'Київ');
       }
 
-      vm.toggleEvFilter();
-      expect(vm.onlyWithEvCharging, isFalse);
-
-      vm.togglePharmacyFilter();
-      expect(vm.onlyWithPharmacy, isTrue);
-      for (final s in vm.stores) {
-        expect(
-          s.hasPharmacy || s.amenities.any((a) => a.contains('Аптека')),
-          isTrue,
-        );
-      }
+      vm.search('Gulliver');
+      expect(vm.stores.any((s) => s.name.contains('Gulliver')), isTrue);
     });
 
     test('selectStore in ViewModel propagates to selectedStore', () {
@@ -112,14 +112,14 @@ void main() {
   });
 
   group('SilpoFeatureChip & SilpoNetworkImage Widget Tests', () {
-    testWidgets('SilpoFeatureChip renders emoji and label matching screenshot design', (tester) async {
+    testWidgets('SilpoFeatureChip renders amenity emoji and label correctly', (tester) async {
       bool tapped = false;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: SilpoFeatureChip(
-              emoji: '⚡',
-              label: 'З генератором',
+              emoji: '🍕',
+              label: 'Піцерія',
               isSelected: false,
               onTap: () {
                 tapped = true;
@@ -129,8 +129,8 @@ void main() {
         ),
       );
 
-      expect(find.text('⚡'), findsOneWidget);
-      expect(find.text('З генератором'), findsOneWidget);
+      expect(find.text('🍕'), findsOneWidget);
+      expect(find.text('Піцерія'), findsOneWidget);
 
       await tester.tap(find.byType(SilpoFeatureChip));
       await tester.pump();

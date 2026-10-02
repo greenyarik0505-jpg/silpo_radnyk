@@ -4,11 +4,19 @@ import '../../domain/entities/recipe.dart';
 import '../../domain/entities/cart_item.dart';
 import '../../data/repositories/silpo_repository.dart';
 
+import '../../domain/entities/receipt.dart';
+
 /// ViewModel managing shopping cart state and product quantities.
 class CartViewModel extends ChangeNotifier {
+  final SilpoRepository _repository;
   final Map<String, CartItem> _items = {};
+  final List<FiscalReceipt> _orderHistory = [];
 
-  CartViewModel({SilpoRepository? repository});
+  CartViewModel({SilpoRepository? repository})
+      : _repository = repository ?? SilpoRepository();
+
+  SilpoRepository get repository => _repository;
+  List<FiscalReceipt> get orderHistory => List.unmodifiable(_orderHistory);
 
   List<CartItem> get items => _items.values.toList();
   int get itemCount => _items.values.fold(0, (sum, i) => sum + (i.quantity.round()));
@@ -63,6 +71,15 @@ class CartViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  double get totalWeightGrams {
+    return _items.values.fold(0.0, (sum, item) {
+      final grams = item.product.weightGrams > 0 ? item.product.weightGrams : 500.0;
+      return sum + (grams * item.quantity);
+    });
+  }
+
+  bool get autoReplenishment => _items.values.any((item) => item.isAutoReplenish);
+
   void removeItem(String productId) {
     if (_items.containsKey(productId)) {
       _items.remove(productId);
@@ -70,18 +87,72 @@ class CartViewModel extends ChangeNotifier {
     }
   }
 
+  void removeProduct(String productId) => removeItem(productId);
+
   void clearCart() {
     _items.clear();
     notifyListeners();
   }
 
-  void toggleAutoReplenish(String productId, {int days = 7}) {
+  void toggleAutoReplenish(String? productId, {int days = 7}) {
+    final effectiveDays = days;
+    if (productId == null) {
+      final newState = !autoReplenishment;
+      for (final key in _items.keys.toList()) {
+        final item = _items[key]!;
+        _items[key] = item.copyWith(
+          isAutoReplenish: newState,
+          replenishIntervalDays: newState ? effectiveDays : null,
+        );
+      }
+      notifyListeners();
+      return;
+    }
+
     if (!_items.containsKey(productId)) return;
     final item = _items[productId]!;
     _items[productId] = item.copyWith(
       isAutoReplenish: !item.isAutoReplenish,
-      replenishIntervalDays: !item.isAutoReplenish ? days : null,
+      replenishIntervalDays: !item.isAutoReplenish ? effectiveDays : null,
     );
     notifyListeners();
+  }
+
+  FiscalReceipt placeOrder({
+    required String storeAddress,
+    required String deliveryType,
+    required String paymentMethod,
+    double deliveryFee = 0.0,
+  }) {
+    final receiptItems = _items.values.map((item) {
+      return ReceiptItem(
+        name: item.product.title,
+        quantity: item.quantity,
+        unit: item.product.unit,
+        price: item.product.currentPrice,
+        total: item.totalPrice,
+        discountAmount: item.totalSavings,
+        category: item.product.category,
+      );
+    }).toList();
+
+    final orderId = 'SLP-${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}';
+    final fiscalNumber = 'ФН ${DateTime.now().millisecondsSinceEpoch}';
+
+    final receipt = FiscalReceipt(
+      id: orderId,
+      fiscalNumber: fiscalNumber,
+      dateTime: DateTime.now(),
+      storeAddress: storeAddress,
+      totalAmount: totalPrice + deliveryFee,
+      discountAmount: totalSavings,
+      bonusPointsEarned: (totalPrice).round() * 3, // loyalty boost 3x
+      items: receiptItems,
+      paymentMethod: paymentMethod,
+    );
+
+    _orderHistory.insert(0, receipt);
+    clearCart();
+    return receipt;
   }
 }

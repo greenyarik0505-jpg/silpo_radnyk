@@ -24,4 +24,5 @@ class DeliverySlot {
   });
 
   bool get isFree => deliveryFee == 0.0;
+  double get price => deliveryFee;
 }

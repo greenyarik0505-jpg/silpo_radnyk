@@ -14,6 +14,8 @@ class PromoViewModel extends ChangeNotifier {
     loadPromos();
   }
 
+  List<PromoItem> get allPromos => List.unmodifiable(_allPromos);
+
   List<PromoItem> get promos {
     if (_selectedCategory == null || _selectedCategory == 'Всі') {
       return _allPromos;
@@ -21,11 +23,17 @@ class PromoViewModel extends ChangeNotifier {
     return _allPromos.where((p) => p.category == _selectedCategory).toList();
   }
 
+  List<PromoItem> get filteredPromos => promos;
+
   List<PromoItem> get cinotyzhiki =>
       _allPromos.where((p) => p.type == PromoType.cinotyzhik).toList();
 
+  List<PromoItem> get featuredPromos => cinotyzhiki;
+
   List<PromoItem> get personalDeals =>
       _allPromos.where((p) => p.type == PromoType.personalDeal).toList();
+
+  void filterByCategory(String? category) => selectCategory(category);
 
   String? get selectedCategory => _selectedCategory;
   bool get isLoading => _isLoading;
