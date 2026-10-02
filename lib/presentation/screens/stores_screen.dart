@@ -3,7 +3,6 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../viewmodels/store_viewmodel.dart';
 import '../viewmodels/cart_viewmodel.dart';
-import 'mcp_console_screen.dart';
 import 'vilnokasa_screen.dart';
 import '../viewmodels/mcp_viewmodel.dart';
 
@@ -44,18 +43,6 @@ class StoresScreen extends StatelessWidget {
                     );
                   },
                 ),
-              IconButton(
-                icon: const Icon(Icons.terminal, color: AppColors.silpoOrange),
-                tooltip: 'Silpo MCP Console',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => McpConsoleScreen(mcpViewModel: mcpViewModel),
-                    ),
-                  );
-                },
-              ),
             ],
           ),
           body: Column(
