@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/images/app_logo.png" width="180" alt="СільпоРадник Логотип" style="border-radius: 36px; box-shadow: 0 10px 30px rgba(255, 106, 0, 0.4); margin-bottom: 12px;"/>
+<img src="assets/images/app_logo.png" width="180" alt="СільпоРадник"/>
 
 # 🍊 СільпоРадник
 ### *Твій розумний мобільний асистент для вигідних та смачних покупок у «Сільпо»*
