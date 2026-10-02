@@ -113,12 +113,12 @@ class ProductDetailsSheet extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Price Row
+            // Price Row with prominent "Додати в кошик" button
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: isDark ? AppColors.darkBackground : const Color(0xFFFFF9F5),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: AppColors.silpoOrange.withValues(alpha: 0.2)),
               ),
               child: Row(
@@ -127,7 +127,7 @@ class ProductDetailsSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Ціна в Сільпо:',
+                        'Ціна товару:',
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                       Row(
@@ -162,15 +162,19 @@ class ProductDetailsSheet extends StatelessWidget {
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('«${product.title}» додано до списку покупок!'),
+                          content: Text('«${product.title}» (${product.currentPrice.toStringAsFixed(2)} ₴) додано до кошика!'),
                           backgroundColor: AppColors.silpoOrange,
                         ),
                       );
                     },
                     icon: const Icon(Icons.add_shopping_cart, size: 18),
-                    label: const Text('У список'),
+                    label: Text(
+                      'Додати в кошик • ${product.currentPrice.toStringAsFixed(2)} ₴',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.silpoOrange,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                   ),
                 ],
@@ -203,11 +207,17 @@ class ProductDetailsSheet extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Section 2: Продукти, з яких готується страва (з посиланнями на Сільпо)
+            // Section 2: Продукти, з яких готується страва (з ціною, кнопкою додавання в кошик та посиланням на Сільпо)
             if (product.recipeIngredients.isNotEmpty) ...[
-              const Text(
-                '🥗 З чого приготувати (товари в Сільпо):',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              const Row(
+                children: [
+                  Icon(Icons.restaurant_menu, size: 18, color: AppColors.silpoOrange),
+                  SizedBox(width: 6),
+                  Text(
+                    'Інгредієнти страви (ціна та додавання в кошик):',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               ...product.recipeIngredients.map((item) => _buildIngredientRow(context, item, isDark)),
@@ -259,7 +269,35 @@ class ProductDetailsSheet extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
+
+            // Big Full-Width "Додати до кошика" Button
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: FilledButton.icon(
+                onPressed: () {
+                  cartViewModel.addProduct(product);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('«${product.title}» (${product.currentPrice.toStringAsFixed(2)} ₴) додано до кошика!'),
+                      backgroundColor: AppColors.silpoOrange,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.shopping_cart),
+                label: Text(
+                  'Додати в кошик • ${product.currentPrice.toStringAsFixed(2)} ₴',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.silpoOrange,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -268,68 +306,105 @@ class ProductDetailsSheet extends StatelessWidget {
 
   Widget _buildIngredientRow(BuildContext context, ProductIngredientItem item, bool isDark) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkBackground : Colors.grey[50],
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.check_circle_outline, size: 18, color: AppColors.silpoOrange),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+          Row(
+            children: [
+              const Icon(Icons.check_circle_outline, size: 18, color: AppColors.silpoOrange),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
                   item.name,
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
-                Text(
-                  '${item.amount} • ${item.brand ?? "Сільпо"} • ~${item.estimatedPrice.toStringAsFixed(1)} ₴',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isDark ? Colors.white54 : Colors.grey[600],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.silpoOrange.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${item.estimatedPrice.toStringAsFixed(2)} ₴',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: AppColors.silpoOrange,
                   ),
                 ),
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.only(left: 26),
+            child: Text(
+              'Кількість: ${item.amount} • Бренд: ${item.brand ?? "Сільпо"}',
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark ? Colors.white54 : Colors.grey[600],
+              ),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.open_in_new, size: 18, color: AppColors.silpoOrange),
-            tooltip: 'Відкрити посилання на silpo.ua',
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: item.silpoUrl));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Посилання на «${item.name}» у Сільпо скопійовано: ${item.silpoUrl}'),
-                  duration: const Duration(seconds: 2),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              OutlinedButton.icon(
+                icon: const Icon(Icons.open_in_new, size: 14),
+                label: const Text('На silpo.ua', style: TextStyle(fontSize: 12)),
+                style: OutlinedButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.add_shopping_cart, size: 18),
-            tooltip: 'Додати цей інгредієнт',
-            onPressed: () {
-              final ingredientProduct = Product(
-                id: 'ing_${item.name.hashCode}',
-                title: '${item.name} (${item.brand ?? "Сільпо"})',
-                category: 'Інгредієнти',
-                regularPrice: item.estimatedPrice,
-                silpoUrl: item.silpoUrl,
-              );
-              cartViewModel.addProduct(ingredientProduct);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('«${item.name}» додано до списку покупок!'),
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: item.silpoUrl));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Посилання на «${item.name}» у Сільпо скопійовано!'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+              const Spacer(),
+              FilledButton.icon(
+                icon: const Icon(Icons.add_shopping_cart, size: 15),
+                label: Text(
+                  'Додати в кошик • ${item.estimatedPrice.toStringAsFixed(2)} ₴',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                style: FilledButton.styleFrom(
                   backgroundColor: AppColors.silpoOrange,
-                  duration: const Duration(seconds: 1),
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 ),
-              );
-            },
+                onPressed: () {
+                  final ingredientProduct = Product(
+                    id: 'ing_${item.name.hashCode}',
+                    title: '${item.name} (${item.brand ?? "Сільпо"})',
+                    category: 'Інгредієнти',
+                    regularPrice: item.estimatedPrice,
+                    silpoUrl: item.silpoUrl,
+                  );
+                  cartViewModel.addProduct(ingredientProduct);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('«${item.name}» (${item.estimatedPrice.toStringAsFixed(2)} ₴) додано до кошика!'),
+                      backgroundColor: AppColors.silpoOrange,
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ],
       ),

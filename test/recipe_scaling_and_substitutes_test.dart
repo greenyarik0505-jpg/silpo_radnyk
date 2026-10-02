@@ -56,9 +56,10 @@ void main() {
       final originalServings = aiMsg.recipe!.servings;
 
       // Scale servings via ViewModel
-      chatViewModel.updateRecipeServings(aiMsg.id, 6);
+      final targetServings = originalServings == 4 ? 6 : 4;
+      chatViewModel.updateRecipeServings(aiMsg.id, targetServings);
       final updatedMsg = chatViewModel.messages.firstWhere((m) => m.id == aiMsg.id);
-      expect(updatedMsg.recipe!.servings, 6);
+      expect(updatedMsg.recipe!.servings, targetServings);
       expect(updatedMsg.recipe!.servings, isNot(originalServings));
     });
   });

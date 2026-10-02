@@ -53,86 +53,97 @@ class ChatViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await Future.delayed(const Duration(milliseconds: 600)); // Natural AI response feel
-
-      final lower = trimmed.toLowerCase();
-
-      if (lower.contains('борщ') ||
-          lower.contains('тірамісу') ||
-          lower.contains('десерт') ||
-          lower.contains('кето') ||
-          lower.contains('вечер') ||
-          lower.contains('рецепт')) {
-        // Recipe understanding flow
-        final parsedRecipe = await _repository.parseRecipe(trimmed);
-        final aiMsg = ChatMessage(
-          id: _uuid.v4(),
-          text: 'Ось підібраний рецепт "${parsedRecipe.title}" з точним списком необхідних товарів у Сільпо!',
-          isUser: false,
-          timestamp: DateTime.now(),
-          recipe: parsedRecipe,
-          mcpToolExecuted: SilpoMcpTools.parseRecipe,
-          suggestedActions: [
-            'Показати акційні аналоги',
-            'Скільки калорій у порції?',
-            'Додати до списку покупок',
-          ],
+      ChatMessage aiMsg;
+      try {
+        // 1. Primary engine: Google AI Studio Gemini 3.1 Flash Lite with Silpo catalogue grounding
+        aiMsg = await _repository.askGemini(
+          prompt: trimmed,
+          conversationHistory: _messages.where((m) => m != userMsg).toList(),
         );
-        _messages.add(aiMsg);
-      } else if (lower.contains('подешевшало') ||
-          lower.contains('знижк') ||
-          lower.contains('акці') ||
-          lower.contains('цінотижик')) {
-        // Promos flow
-        final cinotyzhiki = await _repository.getCinotyzhiki();
-        final products = await _repository.searchProducts('');
-        final discounted = products.where((p) => p.hasDiscount).take(3).toList();
-
-        final summary = cinotyzhiki.map((p) => '• ${p.title}').join('\n');
-        final aiMsg = ChatMessage(
-          id: _uuid.v4(),
-          text: 'Цього тижня у «Цінотижиках» Сільпо діють суперціни:\n\n$summary\n\nЯ знайшов найвигідніші пропозиції для вас:',
-          isUser: false,
-          timestamp: DateTime.now(),
-          recommendedProducts: discounted,
-          mcpToolExecuted: SilpoMcpTools.getCinotyzhiki,
-          suggestedActions: [
-            'Додати сир до кошика',
-            'Які акції на вино?',
-            'Показати всі «Цінотижики»',
-          ],
-        );
-        _messages.add(aiMsg);
-      } else {
-        // General catalog search flow
-        final searchResults = await _repository.searchProducts(trimmed);
-        if (searchResults.isNotEmpty) {
-          final aiMsg = ChatMessage(
-            id: _uuid.v4(),
-            text: 'Знайшов у каталозі Сільпо такі товари за запитом "$trimmed":',
-            isUser: false,
-            timestamp: DateTime.now(),
-            recommendedProducts: searchResults.take(4).toList(),
-            mcpToolExecuted: SilpoMcpTools.searchCatalog,
-          );
-          _messages.add(aiMsg);
-        } else {
-          final aiMsg = ChatMessage(
-            id: _uuid.v4(),
-            text: 'Я можу допомогти скласти меню на будь-який день, розібрати рецепт на інгредієнти або підібрати найсмачніші акційні товари Сільпо. Спробуйте запитати, наприклад:\n• "Що приготувати на вечерю до 250 грн?"\n• "Які акції на лосось та авокадо?"',
-            isUser: false,
-            timestamp: DateTime.now(),
-            suggestedActions: const [
-              AppStrings.quickPromptBorsch,
-              AppStrings.quickPromptTiramisu,
-            ],
-          );
-          _messages.add(aiMsg);
-        }
+      } catch (e) {
+        // 2. Resilient fallback: Local Silpo repository engine (in case of offline/network errors)
+        aiMsg = await _fallbackLocalResponse(trimmed);
       }
+      _messages.add(aiMsg);
     } finally {
       _isTyping = false;
       notifyListeners();
+    }
+  }
+
+  Future<ChatMessage> _fallbackLocalResponse(String trimmed) async {
+    final lower = trimmed.toLowerCase();
+
+    if (lower.contains('борщ') ||
+        lower.contains('тірамісу') ||
+        lower.contains('десерт') ||
+        lower.contains('кето') ||
+        lower.contains('вечер') ||
+        lower.contains('рецепт') ||
+        lower.contains('сирник') ||
+        lower.contains('паст')) {
+      // Recipe understanding flow
+      final parsedRecipe = await _repository.parseRecipe(trimmed);
+      return ChatMessage(
+        id: _uuid.v4(),
+        text: 'Ось підібраний рецепт "${parsedRecipe.title}" з точним списком необхідних товарів у Сільпо!',
+        isUser: false,
+        timestamp: DateTime.now(),
+        recipe: parsedRecipe,
+        mcpToolExecuted: SilpoMcpTools.parseRecipe,
+        suggestedActions: [
+          'Показати акційні аналоги',
+          'Скільки калорій у порції?',
+          'Додати до списку покупок',
+        ],
+      );
+    } else if (lower.contains('подешевшало') ||
+        lower.contains('знижк') ||
+        lower.contains('акці') ||
+        lower.contains('цінотижик')) {
+      // Promos flow
+      final cinotyzhiki = await _repository.getCinotyzhiki();
+      final products = await _repository.searchProducts('');
+      final discounted = products.where((p) => p.hasDiscount).take(3).toList();
+
+      final summary = cinotyzhiki.map((p) => '• ${p.title}').join('\n');
+      return ChatMessage(
+        id: _uuid.v4(),
+        text: 'Цього тижня у «Цінотижиках» Сільпо діють суперціни:\n\n$summary\n\nЯ знайшов найвигідніші пропозиції для вас:',
+        isUser: false,
+        timestamp: DateTime.now(),
+        recommendedProducts: discounted,
+        mcpToolExecuted: SilpoMcpTools.getCinotyzhiki,
+        suggestedActions: [
+          'Додати сир до кошика',
+          'Які акції на вино?',
+          'Показати всі «Цінотижики»',
+        ],
+      );
+    } else {
+      // General catalog search flow
+      final searchResults = await _repository.searchProducts(trimmed);
+      if (searchResults.isNotEmpty) {
+        return ChatMessage(
+          id: _uuid.v4(),
+          text: 'Знайшов у каталозі Сільпо такі товари за запитом "$trimmed":',
+          isUser: false,
+          timestamp: DateTime.now(),
+          recommendedProducts: searchResults.take(4).toList(),
+          mcpToolExecuted: SilpoMcpTools.searchCatalog,
+        );
+      } else {
+        return ChatMessage(
+          id: _uuid.v4(),
+          text: 'Я можу допомогти скласти меню на будь-який день, розібрати рецепт на інгредієнти або підібрати найсмачніші акційні товари Сільпо. Спробуйте запитати, наприклад:\n• "Що приготувати на вечерю до 250 грн?"\n• "Які акції на лосось та авокадо?"',
+          isUser: false,
+          timestamp: DateTime.now(),
+          suggestedActions: const [
+            AppStrings.quickPromptBorsch,
+            AppStrings.quickPromptTiramisu,
+          ],
+        );
+      }
     }
   }
 

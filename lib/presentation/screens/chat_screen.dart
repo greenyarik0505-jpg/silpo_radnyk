@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../domain/entities/chat_message.dart';
+import '../../domain/entities/product.dart';
 import '../../domain/entities/recipe.dart';
 import '../viewmodels/chat_viewmodel.dart';
 import '../viewmodels/cart_viewmodel.dart';
 import '../widgets/product_card.dart';
+import '../widgets/product_details_sheet.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatViewModel chatViewModel;
@@ -89,7 +91,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      'AI Recipe & Cart Engine • Silpo MCP',
+                      'AI-Шеф & Рецепти в кошик • Gemini 3.1 Flash Lite',
                       style: TextStyle(fontSize: 11, color: AppColors.silpoOrange, fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -97,6 +99,37 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
             actions: [
+              ListenableBuilder(
+                listenable: widget.cartViewModel,
+                builder: (context, _) {
+                  final count = widget.cartViewModel.itemCount;
+                  final total = widget.cartViewModel.totalPrice;
+                  return Container(
+                    margin: const EdgeInsets.only(right: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.silpoOrange.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.silpoOrange.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.shopping_cart_outlined, size: 16, color: AppColors.silpoOrange),
+                        const SizedBox(width: 4),
+                        Text(
+                          '$count шт • ${total.toStringAsFixed(0)} ₴',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.silpoOrange,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
               IconButton(
                 icon: const Icon(Icons.refresh_outlined),
                 tooltip: 'Очистити діалог',
@@ -245,11 +278,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       width: 170,
                       child: ProductCard(
                         product: product,
+                        onTap: () => ProductDetailsSheet.show(context, product, widget.cartViewModel),
                         onAddToCart: () {
                           widget.cartViewModel.addProduct(product);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Додано: ${product.title}'),
+                              content: Text('Додано: ${product.title} • ${product.currentPrice.toStringAsFixed(2)} ₴'),
                               duration: const Duration(seconds: 2),
                             ),
                           );
@@ -372,10 +406,20 @@ class _ChatScreenState extends State<ChatScreen> {
             ...recipe.ingredients.asMap().entries.map((entry) {
               final idx = entry.key;
               final ing = entry.value;
-              final prod = ing.matchedProduct;
+              final prod = ing.substituteProduct ?? ing.matchedProduct;
               final sub = ing.substituteProduct;
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
+              final displayPrice = ing.cost > 0 ? ing.cost : (prod?.currentPrice ?? 35.0);
+
+              return Container(
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkCard : Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isDark ? Colors.white10 : Colors.black12,
+                  ),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -384,21 +428,74 @@ class _ChatScreenState extends State<ChatScreen> {
                         const Icon(Icons.check_circle_outline, size: 16, color: AppColors.successGreen),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            '${ing.name} (${ing.amount} ${ing.unit})',
-                            style: const TextStyle(fontSize: 13),
+                          child: InkWell(
+                            onTap: prod != null
+                                ? () => ProductDetailsSheet.show(context, prod, widget.cartViewModel)
+                                : null,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${ing.name} (${ing.amount} ${ing.unit})',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    decoration: prod != null ? TextDecoration.underline : null,
+                                    decorationColor: AppColors.silpoOrange,
+                                  ),
+                                ),
+                                if (prod != null)
+                                  Text(
+                                    '${prod.title} • ${displayPrice.toStringAsFixed(2)} ₴',
+                                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
-                        if (prod != null)
-                          Text(
-                            '${ing.cost.toStringAsFixed(2)} ₴',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.silpoOrange),
+                        const SizedBox(width: 8),
+                        FilledButton.tonalIcon(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppColors.silpoOrange.withValues(alpha: 0.15),
+                            foregroundColor: AppColors.silpoOrange,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
+                          icon: const Icon(Icons.add_shopping_cart, size: 14),
+                          label: Text(
+                            '+ ${displayPrice.toStringAsFixed(0)} ₴',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            if (prod != null) {
+                              widget.cartViewModel.addProduct(prod);
+                            } else {
+                              widget.cartViewModel.addProduct(
+                                Product(
+                                  id: 'ing_${recipe.id}_$idx',
+                                  title: ing.name,
+                                  category: 'Інгредієнти',
+                                  regularPrice: displayPrice,
+                                  unit: ing.unit,
+                                  weightGrams: ing.amount,
+                                ),
+                              );
+                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Додано до кошика: ${ing.name} • ${displayPrice.toStringAsFixed(2)} ₴'),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                     if (sub != null)
                       Padding(
-                        padding: const EdgeInsets.only(left: 24, top: 2),
+                        padding: const EdgeInsets.only(left: 24, top: 4),
                         child: InkWell(
                           onTap: () => widget.chatViewModel.toggleSubstitute(messageId, idx),
                           child: Text(
@@ -432,7 +529,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.add_shopping_cart, size: 18),
-                  label: const Text('Додати все до кошика'),
+                  label: Text('Додати все • ${recipe.totalEstimatedCost.toStringAsFixed(0)} ₴'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.silpoOrange,
                     foregroundColor: Colors.white,
@@ -442,7 +539,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     widget.cartViewModel.addRecipeIngredients(recipe);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Всі інгредієнти для "${recipe.title}" додано в кошик!'),
+                        content: Text('Всі інгредієнти для "${recipe.title}" додано в кошик! (${recipe.totalEstimatedCost.toStringAsFixed(2)} ₴)'),
                         backgroundColor: AppColors.successGreen,
                       ),
                     );

@@ -4,22 +4,39 @@ import '../../domain/entities/promo.dart';
 import '../../domain/entities/receipt.dart';
 import '../../domain/entities/store.dart';
 import '../../domain/entities/delivery_slot.dart';
+import '../../domain/entities/chat_message.dart';
 import '../../core/mcp/mcp_client.dart';
 import '../../core/mcp/silpo_mcp_tools.dart';
 import '../datasources/silpo_datasource.dart';
 import '../datasources/silpo_mock_datasource.dart';
+import '../datasources/gemini_ai_service.dart';
 
 class SilpoRepository {
   final SilpoDataSource _dataSource;
   final McpClient _mcpClient;
+  final GeminiAiService _geminiService;
 
   SilpoRepository({
     SilpoDataSource? dataSource,
     McpClient? mcpClient,
+    GeminiAiService? geminiService,
   })  : _dataSource = dataSource ?? SilpoMockDataSource(),
-        _mcpClient = mcpClient ?? McpClient();
+        _mcpClient = mcpClient ?? McpClient(),
+        _geminiService = geminiService ?? GeminiAiService();
 
   McpClient get mcpClient => _mcpClient;
+  GeminiAiService get geminiService => _geminiService;
+
+  /// Calls Google AI Studio Gemini 3.1 Flash Lite API with Silpo catalog grounding.
+  Future<ChatMessage> askGemini({
+    required String prompt,
+    List<ChatMessage> conversationHistory = const [],
+  }) async {
+    return _geminiService.generateChatResponse(
+      prompt: prompt,
+      conversationHistory: conversationHistory,
+    );
+  }
 
   Future<List<Product>> searchProducts(String query, {String? category, String? filialId}) async {
     return _dataSource.searchProducts(query, category: category, filialId: filialId);

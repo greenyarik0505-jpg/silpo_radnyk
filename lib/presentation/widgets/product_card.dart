@@ -96,7 +96,7 @@ class ProductCard extends StatelessWidget {
               ),
               const Spacer(),
 
-              // Price and Add Button
+              // Price and Prominent Add to Cart Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -108,31 +108,34 @@ class ProductCard extends StatelessWidget {
                           '${product.regularPrice.toStringAsFixed(2)} ₴',
                           style: TextStyle(
                             decoration: TextDecoration.lineThrough,
-                            fontSize: 12,
+                            fontSize: 11,
                             color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                           ),
                         ),
                       Text(
                         '${product.currentPrice.toStringAsFixed(2)} ₴',
                         style: TextStyle(
-                          fontSize: 17,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: product.hasDiscount ? AppColors.discountRed : AppColors.silpoOrange,
                         ),
                       ),
                     ],
                   ),
-                  IconButton.filled(
-                    style: IconButton.styleFrom(
+                  FilledButton.icon(
+                    style: FilledButton.styleFrom(
                       backgroundColor: AppColors.silpoOrange,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      visualDensity: VisualDensity.compact,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    icon: const Icon(Icons.add_shopping_cart, size: 20),
+                    icon: const Icon(Icons.add_shopping_cart, size: 15),
+                    label: const Text(
+                      '+ Кошик',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
                     onPressed: onAddToCart,
-                    tooltip: 'Додати в кошик',
                   ),
                 ],
               ),
@@ -148,8 +151,8 @@ class ProductCard extends StatelessWidget {
     if (cat.contains('м’яс') || cat.contains('мяс')) return Icons.kebab_dining;
     if (cat.contains('риба')) return Icons.set_meal;
     if (cat.contains('овоч') || cat.contains('фрукт')) return Icons.eco;
-    if (cat.contains('молоч') || cat.contains('сир')) return Icons.egg_alt;
-    if (cat.contains('пекарн') || cat.contains('хліб')) return Icons.bakery_dining;
+    if (cat.contains('сир') || cat.contains('молок')) return Icons.local_drink;
+    if (cat.contains('пекар') || cat.contains('хліб')) return Icons.bakery_dining;
     if (cat.contains('кава') || cat.contains('чай')) return Icons.coffee;
     return Icons.shopping_basket;
   }

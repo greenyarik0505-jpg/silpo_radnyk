@@ -107,14 +107,18 @@ class PromoCard extends StatelessWidget {
                     ),
                   const Spacer(),
                   if (onAddToCart != null)
-                    FilledButton.tonalIcon(
+                    FilledButton.icon(
                       onPressed: onAddToCart,
                       icon: const Icon(Icons.add_shopping_cart, size: 16),
-                      label: const Text('У список'),
+                      label: Text(
+                        'Додати в кошик • ${promo.promoPrice?.toStringAsFixed(2) ?? ""} ₴',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
                       style: FilledButton.styleFrom(
                         visualDensity: VisualDensity.compact,
-                        backgroundColor: AppColors.silpoOrange.withValues(alpha: 0.15),
-                        foregroundColor: AppColors.silpoOrange,
+                        backgroundColor: AppColors.silpoOrange,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
                     ),
                 ],
