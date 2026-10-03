@@ -52,3 +52,9 @@ Desktop.ini
 *.env
 .env*
 lib/core/config/app_secrets.dart
+
+# Local AI agent instructions & private docs (never push to GitHub)
+AGENTS.md
+agents.md
+*.local.md
+
