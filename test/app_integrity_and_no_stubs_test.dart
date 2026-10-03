@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sulipo_pomoshuk/data/datasources/silpo_mock_datasource.dart';
+import 'package:sulipo_pomoshuk/data/datasources/silpo_remote_datasource.dart';
 import 'package:sulipo_pomoshuk/data/repositories/silpo_repository.dart';
 import 'package:sulipo_pomoshuk/domain/entities/cart_item.dart';
 import 'package:sulipo_pomoshuk/domain/entities/product.dart';
@@ -175,6 +177,68 @@ void main() {
       expect(revivedItem.product.id, 'p1');
       expect(revivedItem.quantity, 3);
       expect(revivedItem.totalPrice, 60.0);
+    });
+
+    test('Strict verification: zero occurrences of deleted service chips across all datasources', () async {
+      final mockDs = SilpoMockDataSource();
+      final remoteDs = SilpoRemoteDataSource();
+
+      final mockStores = await mockDs.getStores();
+      final remoteStores = await remoteDs.getStores();
+      final repoStores = await repository.getStores();
+
+      final allStores = {...mockStores, ...remoteStores, ...repoStores};
+      expect(allStores.isNotEmpty, isTrue);
+
+      final forbiddenKeywords = [
+        'генератор',
+        'пекарн',
+        'feeltrd',
+        'зарядка',
+        'ev',
+        'аптека',
+      ];
+
+      for (final store in allStores) {
+        for (final amenity in store.amenities) {
+          final lower = amenity.toLowerCase();
+          for (final kw in forbiddenKeywords) {
+            expect(
+              lower.contains(kw),
+              isFalse,
+              reason: 'Store "${store.name}" in "${store.city}" contains forbidden service keyword "$kw": "$amenity"',
+            );
+          }
+        }
+      }
+    });
+
+    test('Strict verification: no stub messages, empty placeholders, or unimplemented markers in data models', () async {
+      // 1. Check recipes
+      final recipes = await repository.getPopularRecipes();
+      for (final r in recipes) {
+        expect(r.instructions.join(' ').toLowerCase().contains('заглушка'), isFalse);
+        expect(r.instructions.join(' ').toLowerCase().contains('скоро буде'), isFalse);
+        expect(r.ingredients.isNotEmpty, isTrue);
+        expect(r.steps.isNotEmpty, isTrue);
+      }
+
+      // 2. Check delivery slots
+      final slots = await repository.getDeliverySlots();
+      expect(slots.isNotEmpty, isTrue);
+      for (final slot in slots) {
+        expect(slot.timeRange.trim().isNotEmpty, isTrue);
+        expect(slot.timeRange.toLowerCase().contains('заглушка'), isFalse);
+      }
+
+      // 3. Check promos
+      final promos = await repository.getCinotyzhiki();
+      expect(promos.isNotEmpty, isTrue);
+      for (final promo in promos) {
+        expect(promo.title.trim().isNotEmpty, isTrue);
+        expect(promo.title.toLowerCase().contains('заглушка'), isFalse);
+        expect(promo.discountPercent, greaterThan(0));
+      }
     });
   });
 }

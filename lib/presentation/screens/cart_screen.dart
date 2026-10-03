@@ -87,16 +87,22 @@ class CartScreen extends StatelessWidget {
 
   Widget _buildSummaryPanel(BuildContext context, bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            offset: const Offset(0, -3),
-            blurRadius: 10,
+            color: AppColors.silpoNavy.withValues(alpha: 0.08),
+            offset: const Offset(0, -4),
+            blurRadius: 14,
           ),
         ],
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          ),
+        ),
       ),
       child: SafeArea(
         top: false,
@@ -105,12 +111,12 @@ class CartScreen extends StatelessWidget {
           children: [
             if (cartViewModel.totalSavings > 0)
               Padding(
-                padding: const EdgeInsets.only(bottom: 6),
+                padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Економія за акціями:',
+                      'Економія за акціями «Сільпо»:',
                       style: TextStyle(
                         fontSize: 13,
                         color: AppColors.discountRed,
@@ -137,7 +143,7 @@ class CartScreen extends StatelessWidget {
                   children: [
                     const Text(
                       AppStrings.totalSum,
-                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                      style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w500),
                     ),
                     Text(
                       '${cartViewModel.totalPrice.toStringAsFixed(2)} ₴',
@@ -151,13 +157,15 @@ class CartScreen extends StatelessWidget {
                 ),
                 FilledButton.icon(
                   onPressed: () => _showCheckoutBottomSheet(context, isDark),
-                  icon: const Icon(Icons.shopping_bag_outlined),
+                  icon: const Icon(Icons.shopping_bag_outlined, size: 18),
                   label: const Text('Оформити замовлення'),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.silpoOrange,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    elevation: 2,
+                    shadowColor: AppColors.silpoOrange.withValues(alpha: 0.35),
                   ),
                 ),
               ],

@@ -8,7 +8,6 @@ import '../viewmodels/mcp_viewmodel.dart';
 import 'vilnokasa_screen.dart';
 import 'mcp_console_screen.dart';
 import '../widgets/silpo_network_image.dart';
-import '../widgets/silpo_feature_chip.dart';
 
 class StoresScreen extends StatelessWidget {
   final StoreViewModel storeViewModel;
@@ -226,49 +225,6 @@ class StoresScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Послуги та сервіси супермаркету:',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: (store.amenities.isEmpty
-                              ? ['🛒 Самовивіз з магазину', '💳 Оплата в додатку SilpoPay']
-                              : store.amenities)
-                          .where((a) =>
-                              !a.toLowerCase().contains('генератор') &&
-                              !a.toLowerCase().contains('пекарн') &&
-                              !a.toLowerCase().contains('feeltrd') &&
-                              !a.toLowerCase().contains('ev') &&
-                              !a.toLowerCase().contains('зарядка') &&
-                              !a.toLowerCase().contains('аптека'))
-                          .map((service) => Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: isDark ? AppColors.darkBackground : const Color(0xFFF1F5F9),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-                                  ),
-                                ),
-                                child: Text(
-                                  service,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.white : const Color(0xFF334155),
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                    ),
-
                     const SizedBox(height: 20),
 
                     // Action buttons
@@ -405,21 +361,34 @@ class StoresScreen extends StatelessWidget {
               // Active Selected Store Banner
               if (storeViewModel.selectedStore != null)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     onTap: () => _showStoreDetailsSheet(context, storeViewModel.selectedStore!),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       decoration: BoxDecoration(
-                        color: AppColors.silpoOrange.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.silpoOrange.withValues(alpha: 0.3)),
+                        color: isDark ? AppColors.darkSurface : AppColors.silpoNavy,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDark ? Colors.black26 : AppColors.silpoNavy.withValues(alpha: 0.16),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.storefront, color: AppColors.silpoOrange, size: 20),
-                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.all(7),
+                            decoration: BoxDecoration(
+                              color: AppColors.silpoOrange,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.storefront, color: Colors.white, size: 18),
+                          ),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,7 +398,7 @@ class StoresScreen extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.silpoOrange,
+                                    color: AppColors.silpoYellow,
                                     letterSpacing: 0.5,
                                   ),
                                 ),
@@ -437,12 +406,12 @@ class StoresScreen extends StatelessWidget {
                                   '${storeViewModel.selectedStore!.name} (${storeViewModel.selectedStore!.city})',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
                                 ),
                               ],
                             ),
                           ),
-                          const Icon(Icons.info_outline, size: 16, color: AppColors.silpoOrange),
+                          const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.white70),
                         ],
                       ),
                     ),
@@ -685,43 +654,7 @@ class StoresScreen extends StatelessWidget {
                                                 ),
                                               ],
                                             ),
-
-                                            if (store.amenities.any((a) =>
-                                                !a.toLowerCase().contains('генератор') &&
-                                                !a.toLowerCase().contains('пекарн') &&
-                                                !a.toLowerCase().contains('feeltrd') &&
-                                                !a.toLowerCase().contains('ev') &&
-                                                !a.toLowerCase().contains('зарядка') &&
-                                                !a.toLowerCase().contains('аптека'))) ...[
-                                              const SizedBox(height: 10),
-                                              Wrap(
-                                                spacing: 6,
-                                                runSpacing: 6,
-                                                children: store.amenities
-                                                    .where((a) =>
-                                                        !a.toLowerCase().contains('генератор') &&
-                                                        !a.toLowerCase().contains('пекарн') &&
-                                                        !a.toLowerCase().contains('feeltrd') &&
-                                                        !a.toLowerCase().contains('ev') &&
-                                                        !a.toLowerCase().contains('зарядка') &&
-                                                        !a.toLowerCase().contains('аптека'))
-                                                    .map((amenity) {
-                                                  final parts = amenity.trim().split(' ');
-                                                  final emoji = parts.isNotEmpty && parts.first.runes.length <= 2 ? parts.first : '✨';
-                                                  final label = parts.isNotEmpty && parts.first.runes.length <= 2 && parts.length > 1
-                                                      ? parts.sublist(1).join(' ')
-                                                      : amenity;
-                                                  return SilpoFeatureChip(
-                                                    emoji: emoji,
-                                                    label: label,
-                                                    isCompact: true,
-                                                  );
-                                                }).toList(),
-                                              ),
-                                            ],
-
-                                            const SizedBox(height: 12),
-
+                                            const SizedBox(height: 10),
                                             // Working Hours and Selection Action
                                             Row(
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,

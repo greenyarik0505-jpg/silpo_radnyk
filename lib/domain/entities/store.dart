@@ -9,15 +9,10 @@ class SilpoStore {
   final double longitude;
   final String? conceptTheme; // e.g. 'Вінтажний цирк', 'Мавка', 'Стимпанк', 'Музичний'
   final List<String> amenities; // 'Власна рибокоптильня', 'Піцерія', 'Суші-бар', 'Власна сироварня'
-  final bool hasGenerator;
   final bool isFavorite;
   final double distanceKm;
 
   final String? imageUrl;
-  final bool hasBakery;
-  final bool hasFeeltrd;
-  final bool hasEvCharging;
-  final bool hasPharmacy;
   final bool isOpen;
   final String? phone;
 
@@ -31,14 +26,9 @@ class SilpoStore {
     required this.longitude,
     this.conceptTheme,
     this.amenities = const [],
-    this.hasGenerator = false,
     this.isFavorite = false,
     this.distanceKm = 1.2,
     this.imageUrl,
-    this.hasBakery = false,
-    this.hasFeeltrd = false,
-    this.hasEvCharging = false,
-    this.hasPharmacy = false,
     this.isOpen = true,
     this.phone,
   });
@@ -53,14 +43,9 @@ class SilpoStore {
     double? longitude,
     String? conceptTheme,
     List<String>? amenities,
-    bool? hasGenerator,
     bool? isFavorite,
     double? distanceKm,
     String? imageUrl,
-    bool? hasBakery,
-    bool? hasFeeltrd,
-    bool? hasEvCharging,
-    bool? hasPharmacy,
     bool? isOpen,
     String? phone,
   }) {
@@ -74,14 +59,9 @@ class SilpoStore {
       longitude: longitude ?? this.longitude,
       conceptTheme: conceptTheme ?? this.conceptTheme,
       amenities: amenities ?? this.amenities,
-      hasGenerator: hasGenerator ?? this.hasGenerator,
       isFavorite: isFavorite ?? this.isFavorite,
       distanceKm: distanceKm ?? this.distanceKm,
       imageUrl: imageUrl ?? this.imageUrl,
-      hasBakery: hasBakery ?? this.hasBakery,
-      hasFeeltrd: hasFeeltrd ?? this.hasFeeltrd,
-      hasEvCharging: hasEvCharging ?? this.hasEvCharging,
-      hasPharmacy: hasPharmacy ?? this.hasPharmacy,
       isOpen: isOpen ?? this.isOpen,
       phone: phone ?? this.phone,
     );
@@ -97,14 +77,9 @@ class SilpoStore {
     'longitude': longitude,
     'conceptTheme': conceptTheme,
     'amenities': amenities,
-    'hasGenerator': hasGenerator,
     'isFavorite': isFavorite,
     'distanceKm': distanceKm,
     'imageUrl': imageUrl,
-    'hasBakery': hasBakery,
-    'hasFeeltrd': hasFeeltrd,
-    'hasEvCharging': hasEvCharging,
-    'hasPharmacy': hasPharmacy,
     'isOpen': isOpen,
     'phone': phone,
   };
@@ -119,14 +94,9 @@ class SilpoStore {
     longitude: (json['longitude'] as num?)?.toDouble() ?? 30.52,
     conceptTheme: json['conceptTheme'] as String?,
     amenities: (json['amenities'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
-    hasGenerator: json['hasGenerator'] as bool? ?? false,
     isFavorite: json['isFavorite'] as bool? ?? false,
     distanceKm: (json['distanceKm'] as num?)?.toDouble() ?? 1.2,
     imageUrl: json['imageUrl'] as String?,
-    hasBakery: json['hasBakery'] as bool? ?? false,
-    hasFeeltrd: json['hasFeeltrd'] as bool? ?? false,
-    hasEvCharging: json['hasEvCharging'] as bool? ?? false,
-    hasPharmacy: json['hasPharmacy'] as bool? ?? false,
     isOpen: json['isOpen'] as bool? ?? true,
     phone: json['phone'] as String?,
   );

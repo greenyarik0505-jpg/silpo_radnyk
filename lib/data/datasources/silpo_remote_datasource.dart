@@ -135,11 +135,6 @@ class SilpoRemoteDataSource implements SilpoDataSource {
               longitude: lng,
               conceptTheme: enrichment.conceptTheme,
               amenities: enrichment.amenities,
-              hasGenerator: enrichment.hasGenerator,
-              hasBakery: enrichment.hasBakery,
-              hasFeeltrd: enrichment.hasFeeltrd,
-              hasEvCharging: enrichment.hasEvCharging,
-              hasPharmacy: enrichment.hasPharmacy,
               isFavorite: enrichment.isFavorite,
               distanceKm: enrichment.distanceKm,
               imageUrl: enrichment.imageUrl,
@@ -661,11 +656,6 @@ class SilpoRemoteDataSource implements SilpoDataSource {
       conceptTheme: null,
       imageUrl: photoUrl,
       amenities: amenitiesList,
-      hasGenerator: false,
-      hasBakery: false,
-      hasFeeltrd: false,
-      hasEvCharging: false,
-      hasPharmacy: false,
       isFavorite: false,
       distanceKm: ((hash % 50) / 10.0) + 0.5,
     );
@@ -677,11 +667,6 @@ class _StoreEnrichment {
   final String? conceptTheme;
   final String imageUrl;
   final List<String> amenities;
-  final bool hasGenerator;
-  final bool hasBakery;
-  final bool hasFeeltrd;
-  final bool hasEvCharging;
-  final bool hasPharmacy;
   final bool isFavorite;
   final double distanceKm;
 
@@ -690,11 +675,6 @@ class _StoreEnrichment {
     this.conceptTheme,
     required this.imageUrl,
     required this.amenities,
-    this.hasGenerator = false,
-    this.hasBakery = false,
-    this.hasFeeltrd = false,
-    this.hasEvCharging = false,
-    this.hasPharmacy = false,
     required this.isFavorite,
     required this.distanceKm,
   });

@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sulipo_pomoshuk/data/datasources/silpo_remote_datasource.dart';
 import 'package:sulipo_pomoshuk/data/repositories/silpo_repository.dart';
 import 'package:sulipo_pomoshuk/presentation/viewmodels/store_viewmodel.dart';
-import 'package:sulipo_pomoshuk/presentation/widgets/silpo_feature_chip.dart';
 import 'package:sulipo_pomoshuk/presentation/widgets/silpo_network_image.dart';
 
 void main() {
@@ -111,32 +110,7 @@ void main() {
     });
   });
 
-  group('SilpoFeatureChip & SilpoNetworkImage Widget Tests', () {
-    testWidgets('SilpoFeatureChip renders amenity emoji and label correctly', (tester) async {
-      bool tapped = false;
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SilpoFeatureChip(
-              emoji: '🍕',
-              label: 'Піцерія',
-              isSelected: false,
-              onTap: () {
-                tapped = true;
-              },
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('🍕'), findsOneWidget);
-      expect(find.text('Піцерія'), findsOneWidget);
-
-      await tester.tap(find.byType(SilpoFeatureChip));
-      await tester.pump();
-      expect(tapped, isTrue);
-    });
-
+  group('SilpoNetworkImage Widget Tests', () {
     testWidgets('SilpoNetworkImage displays fallback icon gracefully when url is null', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(

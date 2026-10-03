@@ -129,7 +129,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify details bottom sheet contents
-      expect(find.textContaining('Послуги та сервіси супермаркету'), findsOneWidget);
+      expect(find.textContaining('Послуги та сервіси супермаркету'), findsNothing);
       expect(find.textContaining('0 800 301 707'), findsOneWidget);
       expect(find.textContaining('Графік роботи:'), findsOneWidget);
     });

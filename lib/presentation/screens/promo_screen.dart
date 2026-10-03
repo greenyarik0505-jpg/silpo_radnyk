@@ -56,31 +56,71 @@ class PromoScreen extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(14),
                             onTap: onSelectStore,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                               decoration: BoxDecoration(
-                                color: isDark ? AppColors.darkSurface : const Color(0xFFFFF9F5),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.silpoOrange.withValues(alpha: 0.3)),
+                                color: isDark ? AppColors.darkSurface : AppColors.silpoNavy,
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: isDark ? Colors.black26 : AppColors.silpoNavy.withValues(alpha: 0.16),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.location_on, size: 16, color: AppColors.silpoOrange),
-                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.silpoOrange,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(Icons.location_on, size: 16, color: Colors.white),
+                                  ),
+                                  const SizedBox(width: 10),
                                   Expanded(
-                                    child: Text(
-                                      'Акції супермаркету: ${storeViewModel!.selectedStore!.name}',
-                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
-                                      overflow: TextOverflow.ellipsis,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'АКЦІЇ ТА ЦІНИ ДЛЯ:',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.silpoYellow,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                        Text(
+                                          storeViewModel!.selectedStore!.name,
+                                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  const Text(
-                                    'Змінити',
-                                    style: TextStyle(fontSize: 11, color: AppColors.silpoOrange, fontWeight: FontWeight.bold),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Змінити',
+                                          style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
+                                        ),
+                                        SizedBox(width: 2),
+                                        Icon(Icons.keyboard_arrow_right, size: 14, color: Colors.white),
+                                      ],
+                                    ),
                                   ),
-                                  const Icon(Icons.keyboard_arrow_right, size: 16, color: AppColors.silpoOrange),
                                 ],
                               ),
                             ),

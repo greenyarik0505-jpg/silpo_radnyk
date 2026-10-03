@@ -10,6 +10,12 @@ class AppColors {
   static const Color silpoYellow = Color(0xFFFFB800);
   static const Color silpoYellowLight = Color(0xFFFFF7DF);
   
+  // Brand Navy Blue (Офіційний синій Сільпо)
+  static const Color silpoNavy = Color(0xFF0D2240);
+  static const Color silpoNavyDark = Color(0xFF08172C);
+  static const Color silpoNavyLight = Color(0xFF1B3860);
+  static const Color silpoNavySoft = Color(0xFFF0F4FA);
+
   // Loyalty «Власний Рахунок»
   static const Color vlasnyiRakhunok = Color(0xFF6C5CE7);
   static const Color vlasnyiRakhunokLight = Color(0xFFEDE9FE);

@@ -206,18 +206,29 @@ class _ChatScreenState extends State<ChatScreen> {
           margin: const EdgeInsets.symmetric(vertical: 6),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
-          decoration: const BoxDecoration(
-            color: AppColors.silpoOrange,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-              bottomLeft: Radius.circular(16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColors.silpoOrange, AppColors.silpoOrangeDark],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(18),
+              topRight: Radius.circular(18),
+              bottomLeft: Radius.circular(18),
               bottomRight: Radius.circular(4),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.silpoOrange.withValues(alpha: 0.25),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
           child: Text(
             message.text,
-            style: const TextStyle(color: Colors.white, fontSize: 15),
+            style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
           ),
         ),
       );
@@ -254,19 +265,28 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: isDark ? AppColors.darkCard : AppColors.lightCard,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(4),
-                  topRight: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
+                  topRight: Radius.circular(18),
+                  bottomLeft: Radius.circular(18),
+                  bottomRight: Radius.circular(18),
                 ),
                 border: Border.all(
                   color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                 ),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: AppColors.silpoNavy.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
               ),
               child: Text(
                 message.text,
                 style: TextStyle(
                   fontSize: 14.5,
-                  height: 1.4,
+                  height: 1.45,
                   color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                 ),
               ),
@@ -590,7 +610,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildInputArea(bool isDark) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : Colors.white,
         border: Border(
@@ -598,6 +618,15 @@ class _ChatScreenState extends State<ChatScreen> {
             color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           ),
         ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  offset: const Offset(0, -2),
+                  blurRadius: 6,
+                ),
+              ],
       ),
       child: SafeArea(
         child: Row(
@@ -605,9 +634,24 @@ class _ChatScreenState extends State<ChatScreen> {
             Expanded(
               child: TextField(
                 controller: _textController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: AppStrings.aiInputPlaceholder,
                   isDense: true,
+                  filled: true,
+                  fillColor: isDark ? AppColors.darkBackground : const Color(0xFFF1F5F9),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: const BorderSide(color: AppColors.silpoOrange, width: 2),
+                  ),
                 ),
                 onSubmitted: (val) {
                   if (val.trim().isNotEmpty) {
@@ -618,19 +662,24 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            IconButton.filled(
-              style: IconButton.styleFrom(
-                backgroundColor: AppColors.silpoOrange,
-                foregroundColor: Colors.white,
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColors.silpoOrange, AppColors.silpoOrangeDark],
+                ),
+                shape: BoxShape.circle,
               ),
-              icon: const Icon(Icons.send_rounded),
-              onPressed: () {
-                final text = _textController.text;
-                if (text.trim().isNotEmpty) {
-                  widget.chatViewModel.sendMessage(text);
-                  _textController.clear();
-                }
-              },
+              child: IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.send_rounded),
+                onPressed: () {
+                  final text = _textController.text;
+                  if (text.trim().isNotEmpty) {
+                    widget.chatViewModel.sendMessage(text);
+                    _textController.clear();
+                  }
+                },
+              ),
             ),
           ],
         ),
